@@ -14,8 +14,61 @@
         <label for="password">Mot de passe :</label>
         <input type="password" class="form-control" id="password" name="password">
         <br><br>
-        <input type="submit" class="btn btn-primary" value="Se connecter">
+        <input type="button" class="btn btn-primary" value="Se connecter">
       </form>
     </div>
   </body>
 </html>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+      let submitButton = document.querySelector(".btn.btn-primary");
+      let form= document.querySelector(".form-group")
+      function handleForm(event) { event.preventDefault(); } 
+      form.addEventListener('submit', handleForm);
+      submitButton.addEventListener("click", function(event) {
+            let pseudo= document.querySelector("#username").value
+            let pwd=document.querySelector("#password").value
+            let json_user={
+                "pseudo":pseudo,
+                'password':pwd
+            }
+            
+
+
+            axios.post("/api/user/connect",json_user)
+            .then(function (response) {
+                data=response["data"]
+                if (data["error"]==undefined) {
+                    window.location.replace("/main");
+
+                } else {
+                    console.log("mauvais mot de passe / idnetifiant")
+
+
+                }
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error["error"]);
+            })
+        
+
+        
+
+            
+
+   
+  });
+
+    /*axios.get('/api/computer/complete/'+computer.computerID)
+            .then(function (response) {
+                data=response["data"]
+            
+                
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })*/
+
+</script>

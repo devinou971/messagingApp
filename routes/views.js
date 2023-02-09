@@ -12,5 +12,9 @@ viewRouter.get("/connexion", async function(req, res){
     res.render("connexion")
 })
 
+viewRouter.get("/main", async function(req, res){
+    res.render("main")
+})
+
 
 module.exports = viewRouter
