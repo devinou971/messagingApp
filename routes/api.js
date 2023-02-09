@@ -58,6 +58,25 @@ apiRouter.get("/chat/user/:userid", async function(req, res){
         res.json({error: "No chat found"})
     }
 })
+
+// PUT : invite a user to a chat
+apiRouter.put("/user/:userid/chat/:chatid", async function(req, res){
+    const user = await User.findById(req.params.userid)
+    const chat = await Chat.findById(req.params.chatid)
+    if(user && chat){
+        if (user.conversations.includes(chat._id)){
+            res.json({error: "This user is already in this chat"})
+        } else {
+            user.conversations.push(chat._id)
+            await user.save()
+            
+            res.json({response: "Ok"})
+        }
+    } else {
+        res.json({error: "This user or chat couldn't be found"})
+    }
+})
+
 // ( DELETE chat to delete a chat )
 
 // POST message
@@ -174,7 +193,6 @@ apiRouter.post("/user/connect", async function(req, res){
         const userSpecialId = "_" + userPseudoId.split("_")[1]
         const foundUser = await User.findOne({pseudo: userPseudo, specialId: userSpecialId, password: password}).select("-password")
         if(foundUser){
-            await foundUser.populate("conversations")
             res.json(foundUser)
         } else {
             res.json({error: "pseudo or password incorrect"})
