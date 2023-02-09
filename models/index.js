@@ -57,8 +57,10 @@ Counter.findOne({for: "Chat"}).then((res)=> {
 
 
 userSchema.pre('save', async function(next){
-    const userCounter = await Counter.findOneAndUpdate({for: "User"}, {$inc: {nb: 1}})
-    this.specialId = `_${userCounter.nb}`
+    if(!this.specialId){
+        const userCounter = await Counter.findOneAndUpdate({for: "User"}, {$inc: {nb: 1}})
+        this.specialId = `_${userCounter.nb}`
+    }
     next()
 })
 
