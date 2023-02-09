@@ -1,5 +1,5 @@
 const express = require("express")
-const io = require("../app")
+const {io, redisClient} = require("../app")
 
 const {User, Chat, Message} = require("../models")
 
@@ -91,6 +91,7 @@ apiRouter.post("/message/", async function(req, res){
         await message.populate("to")
 
         io.to(""+ message.to._id).emit("new message", message)
+        
         res.json(message)
     } else {
         res.json({error: "That chat or user doesn't exists"})
@@ -167,7 +168,6 @@ apiRouter.get("/user/:id", async function(req, res){
 // GET find user
 apiRouter.get("/user/find/:pseudo", async function(req, res){
     const pseudoid = req.params.pseudo
-    console.log(pseudoid)
     const pseudo = pseudoid.split("_")[0]
     const specialId = "_" + pseudoid.split("_")[1]
     const user = await User.findOne({pseudo: pseudo, specialId: specialId}).select("-password")
