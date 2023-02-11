@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%- chat.name %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="//cdn.quilljs.com/1.3.6/quill.core.css" rel="stylesheet">
+</head>
+<body>
+    
+<div class="row d-flex justify-content-center">
+    <div>
+        <div class="card" id="chat1" style="border-radius: 15px;">
+            <div class="card-body">
+                <!-- <div class="d-flex flex-row justify-content-start mb-4">
+                    <img src="/static/images/default_pp.png"
+                        alt="avatar 1" style="width: 45px; height: 100%;">
+                    <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                        <p class="small mb-0">Hello and thank you for visiting MDBootstrap. Please click the video
+                        below.</p>
+                    </div>
+                </div> -->
+
+                <template id="messageSentTemplate">
+                    <div class="d-flex flex-row justify-content-end mb-4">
+                        <div>
+                            <div class="small text-muted user-name" style="text-align: right; margin-right: 10px;">User name template</div>
+                            <div class="p-3 me-3 border ql-snow" style="border-radius: 15px; background-color: #fbfbfb;">
+                                <p class="small mb-0 message-text ql-editor">Message template</p>
+                            </div>
+                            <div class="small text-muted time" style="text-align: right; margin-right: 10px;">Time template</div>
+                        </div>
+                        <img src="/static/images/default_pp.png" style="width: 45px; height: 100%; border: 50%;">
+                    </div>
+                </template>
+                
+                <template id="messageReceivedTemplate">
+                    <div class="d-flex flex-row justify-content-start mb-4">
+                        <img class="profile-picture" src="/static/images/default_pp.png" style="width: 45px; height: 100%;">
+                        <div>
+                            <div class="small text-muted user-name">User name template</div>
+                            <div class="p-3 ms-3 ql-snow" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                                <p class="small mb-0 message-text ql-editor">Message template</p>
+                            </div>
+                            <div class="small text-muted time">Time template</div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div class="card-body">
+                <div id="editor"></div>
+                <button type="button" class="btn btn-primary" style="width: 100%;" id="sendMessageButton">Send message</button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+<div id="hidden-editor" style="display: none;">
+
+<!-- Importing Socket.io, Quill and Axios -->
+<script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
+<script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script src="/static/js/messageUtils.js"></script>
+
+<script>
+    const chat = JSON.parse('<%- JSON.stringify(chat) %>')
+
+    const socketHost = "<%= socketHost %>:<%= listenPort %>";
+    const user = JSON.parse(sessionStorage.getItem("user"))
+    if(!user){
+        window.location.replace("/connexion")
+    }
+
+    console.log(`${socketHost}?userid=${user._id}`)
+    const socket = io(`${socketHost}?userid=${user._id+""}`)
+
+    const toolbarOptions = [
+        ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+        ['blockquote', 'code-block'],
+
+        [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+        [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+        [{ 'direction': 'rtl' }],                         // text direction
+
+        [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        
+        [{ 'align': [] }],
+        ['clean']                                         // remove formatting button
+    ];
+
+    const options = {
+        debug: 'info',
+        modules: {toolbar: toolbarOptions},
+        placeholder: 'Put your message here',
+        theme: 'snow'
+    }
+
+    const editor = new Quill("#editor", options)
+    const hiddenEditor = new Quill("#hidden-editor")
+
+    // Send the new message
+    document.querySelector('#sendMessageButton').addEventListener('click', function() {
+        const content = editor.getContents();
+
+        const messageJson = {
+            from: user._id,
+            to: chat._id,
+            content: content.ops
+        }
+
+        axios.post("/api/message", messageJson)
+        .then(function (response) {
+            data = response["data"]
+            if (data.error == undefined) {
+                console.log("Message sent")
+                console.log(data)
+            } else {
+                console.log(data)
+            }
+        })
+        .catch(function (err) {
+            console.log(err);
+        })
+    });
+
+    // Receive all the new messages
+    window.onload = async() => {
+        // Get all existing messages in database
+        const allMessages = await axios.get(`/api/chat/${chat._id}/messages`)
+        console.log(allMessages)
+        if(!allMessages.data.error){
+            for(let message of allMessages.data){
+                const messageContainer = createMessageElement(message, user)
+                document.querySelector(".card-body").appendChild(messageContainer)
+            }
+        }
+
+        socket.on("welcome", function(data) {
+            console.log("Connection made");
+        })
+
+        socket.on("new message", async function(message){
+            if(message.to._id == chat._id){
+                const messageContainer = createMessageElement(message, user)
+                document.querySelector(".card-body").appendChild(messageContainer)
+            } else {
+
+            }
+        })
+    }
+
+</script>
+</body>
+</html>

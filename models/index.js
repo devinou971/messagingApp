@@ -20,7 +20,10 @@ userSchema.index({specialId: 1, pseudo: 1, type: 1, unique: true})
 const messageSchema = new Schema({
     from: {type: Schema.Types.ObjectId, ref: "User"},
     to: {type: Schema.Types.ObjectId, ref: "Chat"},
-    content: Schema.Types.String, 
+    content: {
+        type: Schema.Types.Array,
+        default: []
+    }, 
     timestamp: { type : Schema.Types.Date, default: Date.now }
 })
 
