@@ -121,6 +121,8 @@ apiRouter.get("/chat/:chatid/messages", async function(req, res){
     const allMessages = await Message.find({to: chatId})
     for (let message of allMessages){
         message = await message.populate("from")
+        message.from.password = ""
+        message.from.conversations = []
     }
     if(allMessages.length == 0){
         res.json({error: "No messages found to conversation " + chatId})
