@@ -10,20 +10,10 @@
     <link href="//cdn.quilljs.com/1.3.6/quill.core.css" rel="stylesheet">
 </head>
 <body>
-    
 <div class="row d-flex justify-content-center">
     <div>
-        <div class="card" id="chat1" style="border-radius: 15px;">
-            <div class="card-body">
-                <!-- <div class="d-flex flex-row justify-content-start mb-4">
-                    <img src="/static/images/default_pp.png"
-                        alt="avatar 1" style="width: 45px; height: 100%;">
-                    <div class="p-3 ms-3" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
-                        <p class="small mb-0">Hello and thank you for visiting MDBootstrap. Please click the video
-                        below.</p>
-                    </div>
-                </div> -->
-
+        <div class="card">
+            <div id="messageContainer" class="card-body overflow-auto">
                 <template id="messageSentTemplate">
                     <div class="d-flex flex-row justify-content-end mb-4">
                         <div>
@@ -54,11 +44,9 @@
                 <div id="editor"></div>
                 <button type="button" class="btn btn-primary" style="width: 100%;" id="sendMessageButton">Send message</button>
             </div>
-            
         </div>
     </div>
 </div>
-<div id="hidden-editor" style="display: none;">
 
 <!-- Importing Socket.io, Quill and Axios -->
 <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
@@ -76,7 +64,6 @@
         window.location.replace("/connexion")
     }
 
-    console.log(`${socketHost}?userid=${user._id}`)
     const socket = io(`${socketHost}?userid=${user._id+""}`)
 
     const toolbarOptions = [
@@ -104,18 +91,17 @@
     }
 
     const editor = new Quill("#editor", options)
-    const hiddenEditor = new Quill("#hidden-editor")
 
     // Send the new message
     document.querySelector('#sendMessageButton').addEventListener('click', function() {
-        const content = editor.getContents();
+        const content = editor.root.innerHTML;
 
         const messageJson = {
             from: user._id,
             to: chat._id,
-            content: content.ops
+            content: content
         }
-
+        
         axios.post("/api/message", messageJson)
         .then(function (response) {
             data = response["data"]
@@ -133,6 +119,9 @@
 
     // Receive all the new messages
     window.onload = async() => {
+        const maxHeight = parseInt(window.screen.availHeight * 0.60)
+        document.querySelector("#messageContainer").style.maxHeight = `${maxHeight}px`
+
         // Get all existing messages in database
         const allMessages = await axios.get(`/api/chat/${chat._id}/messages`)
         console.log(allMessages)
@@ -147,10 +136,12 @@
             console.log("Connection made");
         })
 
-        socket.on("new message", async function(message){
+        socket.on("new message", async function(response){
+            const message = response
             if(message.to._id == chat._id){
+                console.log("content", message)
                 const messageContainer = createMessageElement(message, user)
-                document.querySelector(".card-body").appendChild(messageContainer)
+                document.querySelector("#messageContainer").appendChild(messageContainer)
             } else {
 
             }

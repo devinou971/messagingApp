@@ -21,8 +21,8 @@ const messageSchema = new Schema({
     from: {type: Schema.Types.ObjectId, ref: "User"},
     to: {type: Schema.Types.ObjectId, ref: "Chat"},
     content: {
-        type: Schema.Types.Array,
-        default: []
+        type: Schema.Types.String,
+        default: ""
     }, 
     timestamp: { type : Schema.Types.Date, default: Date.now }
 })

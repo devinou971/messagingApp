@@ -1,6 +1,5 @@
 function createMessageElement(message, user){
-    hiddenEditor.setContents(message.content)
-    const htmlContent = hiddenEditor.root.innerHTML
+    const htmlContent = message.content
 
     let messageContainer = null
     if(message.from._id == user._id){
