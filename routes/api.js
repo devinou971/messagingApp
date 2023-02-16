@@ -46,6 +46,35 @@ apiRouter.get("/chat/:id", async function(req, res){
     }
 })
 
+// GET chat to users in chat
+apiRouter.get("/chat/:id/users", async function(req, res){
+    const id = req.params.id
+    const chat = await Chat.findById(id)
+    if (chat){
+        const users = await User.find({conversations: chat._id}).select("-password -conversations")
+        redisClient.select(5)
+        for(let user of users){
+            let lastDeconnection = await redisClient.lRange(user._id + ":allDeconnections", 0, 0)
+            let lastConnection = await redisClient.lRange(user._id + ":allConnections", 0, 0)
+            if (lastConnection.length < 1){
+                console.log("There are no connections so user " + user._id + " is not connected")
+                user.connected = false
+            } else if(lastDeconnection.length < 1) {
+                console.log("There are no disconnections so user " + user._id + " is connected")
+                user.connected = true
+            } else {
+                lastConnection = new Date(lastConnection[0])
+                lastDeconnection = new Date(lastDeconnection[0])
+                console.log("The user " + user._id + " has : " + lastConnection + " " + lastDeconnection + " " + lastConnection > lastDeconnection)
+                user.connected = lastConnection > lastDeconnection
+            }
+        }
+        res.json(users)
+    } else {
+        res.json({error: "No chat found"})
+    }
+})
+
 // GET chat of a user
 apiRouter.get("/chat/user/:userid", async function(req, res){
     const id = req.params.userid
