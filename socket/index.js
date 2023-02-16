@@ -1,38 +1,46 @@
 const redisClient = require("../database")
 const { User, Chat } = require("../models")
 
-module.exports = function(io){
+function createSocket(io){
     io.on("connection", async(socket) => {
         console.log(`Confirmed connection from ${socket.id}`)
         socket.emit("welcome", "Hello world")
 
+        const userid = socket.handshake.query["userid"]
+
         // To connect, the user must send it's id
-        if (socket.handshake.query["userid"] !== undefined){
+        if (userid !== undefined){
             try{
                 // Checking if user exists
-                const user = await User.findByIdAndUpdate(socket.handshake.query["userid"], {connected : true})
+                const user = await User.findByIdAndUpdate(userid, {connected : true})
                 if(user){
-
+                    socket.handshake.auth.userid = userid 
                     // Put the disconnection system in place
                     socket.on("disconnect", async()=>{
                         // Put the new connection in the redis database
-                        redisClient.select(5)
-                        const date = new Date();
-                        redisClient.lPush(user._id + ":allDeconnections", ""+ date.toISOString())
-            
-                        console.log("User " + socket.handshake.query["userid"] + " disconected")
-                        await User.updateOne({_id: socket.handshake.query["userid"]}, {connected : false})
+                        setTimeout(()=>{
+                            redisClient.select(5)
+                            for(let [_, clientSocket] of io.sockets.sockets) {
+                                if (clientSocket.handshake.auth.userid == userid){
+                                    console.log("User " + userid + " still connected")
+                                    return
+                                }
+                            }
+                            const date = new Date();
+                            redisClient.lPush(user._id + ":allDeconnections", ""+ date.toISOString())
+                            console.log("User " + userid + " disconnected")
+                        },5000)
                     })
     
                     // This is important : the user is disconnected only if he has been disconected for more than 5 seconds
                     redisClient.select(5)
-                    const lastConnection = await redisClient.lRange(user._id + ":allDeconnections", 0, 0)
+                    const lastConnection = await redisClient.lRange(user._id + ":allConnections", 0, 0)
                     const lastConnectionTime = Date.parse(lastConnection)
-                    const currentDate = Date.now()
+
+                    const lastDeconnection = await redisClient.lRange(user._id + ":allDeconnections", 0, 0)
+                    const lastDeconnectionTime = Date.parse(lastDeconnection)
                     
-                    if(currentDate - lastConnectionTime < 5000){
-                        redisClient.rPop(user._id + ":allDeconnections")
-                    } else {
+                    if(lastConnectionTime < lastDeconnectionTime || Number.isNaN(lastConnectionTime)){
                         // Put the new connection in the redis database
                         const date = new Date();
                         redisClient.lPush(user._id + ":allConnections", ""+ date.toISOString())
@@ -44,7 +52,7 @@ module.exports = function(io){
                     console.log(socket.id + " Logging into rooms " + chatIds)
                     socket.join(chatIds)
                 } else {
-                    console.log("User "+ socket.handshake.query["userid"] + " couldn't be found")
+                    console.log("User "+ userid + " couldn't be found")
                     socket.disconnect()
                 }
             } catch (e){
@@ -55,4 +63,10 @@ module.exports = function(io){
             console.log("UserId undefined")
         }
     })
+    return redisClient
+}
+
+module.exports = {
+    createSocket: createSocket,
+    redisClient: redisClient
 }

@@ -37,7 +37,10 @@ const io = require("socket.io")(server, {
     }
 });
 
-const redisClient = require("./socket")(io);
+const {createSocket, redisClient} = require("./socket");
+createSocket(io)
+redisClient.select(5)
+redisClient.flushAll()
 
 module.exports = {
     io: io,
