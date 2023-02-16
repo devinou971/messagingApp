@@ -56,22 +56,41 @@ document.querySelector('#sendMessageButton').addEventListener('click', function(
     })
 });
 
+const messagesPromise = axios.get(`/api/chat/${chat._id}/messages`)
+const usersPromise = axios.get(`/api/chat/${chat._id}/users`)
+
 // Receive all the new messages
 window.onload = async() => {
     const maxHeight = parseInt(window.screen.availHeight * 0.65)
     document.querySelector("#messageContainer").style.maxHeight = `${maxHeight}px`
     
-    const messageContainer = document.querySelector("#messageContainer")
-    
     // Get all existing messages in database
-    const allMessages = await axios.get(`/api/chat/${chat._id}/messages`)
-    if(!allMessages.data.error){
-        for(let message of allMessages.data){
-            const messageContainer = createMessageElement(message, user)
-            document.querySelector(".card-body").appendChild(messageContainer)
+    const messageContainer = document.querySelector("#messageContainer")
+    messagesPromise.then((messages)=>{
+        console.log(messages)   
+        if(!messages.data.error){
+            for(let message of messages.data){
+                const messageDiv = createMessageElement(message, user)
+                messageContainer.appendChild(messageDiv)
+            }
+        } 
+        messageContainer.scrollTop = messageContainer.scrollHeight 
+
+    })
+
+    usersPromise.then((users)=>{
+        if(!users.data.error){
+            for(let user_ of users.data){
+                if(user_._id == user._id){
+                    user_.connected = true
+                }
+                console.log(user_)
+                const userContainer = createUserCard(user_)
+                document.querySelector("#userCardContainer").appendChild(userContainer)
+                
+            }
         }
-    }
-    messageContainer.scrollTop = messageContainer.scrollHeight 
+    })
 
     socket.on("welcome", function() {
         console.log("Connection made");
@@ -87,4 +106,8 @@ window.onload = async() => {
 
         }
     })
+
+    //TODO: Create an online event that send an event when a user gets online
+    //TODO: Create an event that sends an event when a user disconnects
+
 }

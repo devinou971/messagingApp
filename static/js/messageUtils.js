@@ -25,7 +25,31 @@ function createMessageElement(message, user){
     messageContainer.querySelector(".time").innerHTML = `Sent on ${dateString} at ${timeString}`
     messageContainer.querySelector(".user-name").innerHTML = message.from.pseudo + message.from.specialId
 
-    // TODO: Put user images instead of default profile pricture
+    if(message.from.profilePicture){
+        messageContainer.querySelector(".profile-picture").src = "/static/images/" + message.from.profilePicture
+    }
 
     return messageContainer
+}
+
+
+function createUserCard(user){
+    const userTemplate = document.querySelector("template#userCardTemplate")
+    
+    const userContainer = userTemplate.content.cloneNode(true) 
+    userContainer.querySelector(".user-name").innerHTML = user.pseudo + user.specialId
+
+    if(user.profilePicture){
+        userContainer.querySelector(".profile-picture").src = "/static/images/" + user.profilePicture
+    }
+
+    const div = userContainer.querySelector(".justify-content-start")
+
+    if(user.connected){
+        // div.classList.add("connected")
+    } else {
+        div.classList.add("disconnected")
+    }
+
+    return userContainer
 }
