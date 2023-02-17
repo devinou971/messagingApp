@@ -76,12 +76,14 @@ apiRouter.get("/chat/:id/users", async function(req, res){
 })
 
 // GET chat of a user
-apiRouter.get("/chat/user/:userid", async function(req, res){
+apiRouter.get("/user/:userid/chats", async function(req, res){
     const id = req.params.userid
     const user = await User.findById(id)
     const publicServers = await Chat.find({public: true})
     if (user){
-        await user.populate()
+        await user.populate({
+            path: "conversations"
+        })
         res.json(publicServers.concat(user.conversations))
     } else {
         res.json({error: "No chat found"})
