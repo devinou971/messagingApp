@@ -1,7 +1,7 @@
 const express = require("express")
 const {io, redisClient} = require("../app")
-
 const {User, Chat, Message} = require("../models")
+const {isUserConnected} = require("../utils")
 
 const apiRouter = express.Router()
 
@@ -13,20 +13,26 @@ apiRouter.get("/ping", function(req, res){
 })
 
 // POST chat to create a chat
+//     "userid" : "63ec8398aca9baffa00"
 // Must send the infos of the chat as well as the userId to add the server to the user's list
 apiRouter.post("/chat/", async function(req, res){
-    const owner = await User.findOne({_id: req.body.userid})
-    if (owner !== undefined){
-        const chat = new Chat(req.body)
-        await chat.save()
-        if(!chat.public){
-            owner.conversations.push(chat._id)
-            await owner.save()
+    if(req.body.userid && req.body.userid.length == 24){
+        const owner = await User.findById(req.body.userid)
+        if (owner !== undefined){
+            const chat = new Chat(req.body)
+            await chat.save()
+            if(!chat.public){
+                owner.conversations.push(chat._id)
+                await owner.save()
+            }
+            res.json(chat)
+        } else {
+            res.json({error: "Owner not defined"})
         }
-        res.json(chat)
     } else {
         res.json({error: "Owner not defined"})
     }
+    
 })
 
 
@@ -54,20 +60,7 @@ apiRouter.get("/chat/:id/users", async function(req, res){
         const users = await User.find({conversations: chat._id}).select("-password -conversations")
         redisClient.select(5)
         for(let user of users){
-            let lastDeconnection = await redisClient.lRange(user._id + ":allDeconnections", 0, 0)
-            let lastConnection = await redisClient.lRange(user._id + ":allConnections", 0, 0)
-            if (lastConnection.length < 1){
-                console.log("There are no connections so user " + user._id + " is not connected")
-                user.connected = false
-            } else if(lastDeconnection.length < 1) {
-                console.log("There are no disconnections so user " + user._id + " is connected")
-                user.connected = true
-            } else {
-                lastConnection = new Date(lastConnection[0])
-                lastDeconnection = new Date(lastDeconnection[0])
-                console.log("The user " + user._id + " has : " + lastConnection + " " + lastDeconnection + " " + lastConnection > lastDeconnection)
-                user.connected = lastConnection > lastDeconnection
-            }
+            user.connected = isUserConnected(user._id, redisClient)
         }
         res.json(users)
     } else {
@@ -200,9 +193,9 @@ apiRouter.get("/user/:id", async function(req, res){
 
 // GET find user
 apiRouter.get("/user/find/:pseudo", async function(req, res){
-    const pseudoid = req.params.pseudo
-    const pseudo = pseudoid.split("_")[0]
-    const specialId = "_" + pseudoid.split("_")[1]
+    const array = req.params.pseudo.split("_")
+    const specialId = "_" + array.pop()
+    const pseudo = array.join("_")
     const user = await User.findOne({pseudo: pseudo, specialId: specialId}).select("-password")
     if (user){
         res.json(user)
