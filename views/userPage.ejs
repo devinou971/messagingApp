@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/chatStyle.css">
+    
+    <title>
+        <%= user.pseudo + user.specialId %>
+    </title>
+</head>
+
+<body>
+    <section style="background-color: #eee;">
+        <div class="container py-5">
+            <div class="row">
+                <div class="col">
+                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="#">Chats</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">User Profile</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-body text-center">
+                            <img src="/static/images/default_pp.png"
+                                alt="profile picture" class="rounded-circle img-fluid" style="width: 150px; height: 150px; border-radius: 15px;">
+                            <h5 class="my-3"> <%= user.pseudo + user.specialId %> </h5>
+                            <p class="text-muted mb-4 <%= user.connected ? "connected" : "disconnected"%>"><%= user.connected ? "Currently Online" : "Currently offline"%></p>
+                            <button onclick="createConversation()" type="button" class="btn btn-primary ms-1">Send a Message</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">User name</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0"><%= user.pseudo %></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Special Id</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0"><%= user.specialId %></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Last connection</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0"><%= Number.isNaN(infos.lastConnection)? "" : new Date(infos.lastConnection) %></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Longest session</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0"><%= infos.sessions.length == 0 ? 0 : Math.max.apply(Math, infos.sessions) %> mins</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <p class="mb-0">Number of Messages</p>
+                                </div>
+                                <div class="col-sm-9">
+                                    <p class="text-muted mb-0"><%= infos.nbMessages %> messages</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <!-- <div class="col-md-6"> -->
+                        <div>
+                            <div class="card mb-4 mb-md-0">
+                                <div class="card-body">
+                                    <div id="sessionsPlot">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.16.5.js" charset="utf-8"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script>
+        // Create socket connection for the user
+        const socketHost = "<%= socketHost %>:<%= listenPort %>";
+        const currentUser = JSON.parse(sessionStorage.getItem("user"))
+        if(!currentUser){
+            window.location.replace("/connexion")
+        }
+
+        const describedUser = JSON.parse('<%- JSON.stringify(user) %>')
+
+        const socket = io(`${socketHost}?userid=${currentUser._id+""}`)
+
+        const sessions = JSON.parse('<%- JSON.stringify(infos.sessions) %>') 
+        const trace = {
+            x: sessions, 
+            type: 'histogram',
+            histfunc: "count",
+            xbins: {
+                size: 0.06, 
+            }
+        }
+        const layout = {
+            xaxis: {
+                title: "Session durations",
+                rangemode: 'tozero',
+            }, 
+            title: "Session duration distribution",
+            bargap: 0.05, 
+        }
+        Plotly.newPlot("sessionsPlot", [trace], layout)
+
+        async function createConversation(){
+            const chatInfos = {
+                name: `Chat between ${currentUser.pseudo + currentUser.specialId} & ${describedUser.pseudo + describedUser.specialId}`,
+                public: false,
+                userid: currentUser._id
+            }
+            const chatResponse = await axios.post("/api/chat", chatInfos)
+            console.log(chatResponse)
+            if(chatResponse.statusText == "OK"){
+                const chat = chatResponse.data
+                if(!chat.error){
+                    const invitationResponse = await axios.put(`/api/user/${describedUser._id}/chat/${chat._id}`)
+                    
+                    if(invitationResponse.statusText == "OK" && !invitationResponse.data.error){
+                        window.location.replace(`/chat/${chat._id}`)
+                    } else {
+                        alert(invitationResponse.data.error)
+                    }
+                } else {
+                    alert(chat.error)
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
