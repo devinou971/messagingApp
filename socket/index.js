@@ -27,7 +27,7 @@ function createSocket(io){
                                 }
                             }
                             const date = new Date();
-                            redisClient.lPush(user._id + ":allDeconnections", ""+ date.toISOString())
+                            redisClient.lPush(user._id + ":allDisconnections", ""+ date.toISOString())
                             console.log("User " + userid + " disconnected")
                         },5000)
                     })
@@ -37,7 +37,7 @@ function createSocket(io){
                     const lastConnection = await redisClient.lRange(user._id + ":allConnections", 0, 0)
                     const lastConnectionTime = Date.parse(lastConnection)
 
-                    const lastDeconnection = await redisClient.lRange(user._id + ":allDeconnections", 0, 0)
+                    const lastDeconnection = await redisClient.lRange(user._id + ":allDisconnections", 0, 0)
                     const lastDeconnectionTime = Date.parse(lastDeconnection)
                     
                     if(lastConnectionTime < lastDeconnectionTime || Number.isNaN(lastConnectionTime)){
