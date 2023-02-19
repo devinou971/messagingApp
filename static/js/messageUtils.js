@@ -34,10 +34,13 @@ function createMessageElement(message, user){
 
 
 function createUserCard(user){
+    
     const userTemplate = document.querySelector("template#userCardTemplate")
     
     const userContainer = userTemplate.content.cloneNode(true) 
-    userContainer.querySelector(".user-name").innerHTML = user.pseudo + user.specialId
+    const userLink = userContainer.querySelector(".user-name").querySelector("a")
+    userLink.innerHTML = user.pseudo + user.specialId
+    userLink.href = `/user/${user.pseudo + user.specialId}`
 
     if(user.profilePicture){
         userContainer.querySelector(".profile-picture").src = "/static/images/" + user.profilePicture
