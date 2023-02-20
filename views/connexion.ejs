@@ -1,70 +1,60 @@
 <html>
-  <head>
+
+<head>
     <title>Page de connexion</title>
     <!-- Inclusion de Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-  </head>
-  <body>
+</head>
+
+<body>
     <div class="container">
-      <h1 class="text-center my-5">Connexion</h1>
-      <form class="form-group">
-        <label for="username">Nom d'utilisateur :</label>
-        <input type="text" class="form-control" id="username" name="username">
-        <br><br>
-        <label for="password">Mot de passe :</label>
-        <input type="password" class="form-control" id="password" name="password">
-        <br><br>
-        <input type="button" class="btn btn-primary" value="Se connecter">
-      </form>
+        <h1 class="text-center my-5">Connexion</h1>
+        <form class="form-group">
+            <label for="username">Nom d'utilisateur :</label>
+            <input type="text" class="form-control" id="username" name="username">
+            <br><br>
+            <label for="password">Mot de passe :</label>
+            <input type="password" class="form-control" id="password" name="password">
+            <br><br>
+            <input type="button" class="btn btn-primary" value="Se connecter">
+        </form>
     </div>
-  </body>
+</body>
+
 </html>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-      let submitButton = document.querySelector(".btn.btn-primary");
-      let form= document.querySelector(".form-group")
-      function handleForm(event) { event.preventDefault(); } 
-      form.addEventListener('submit', handleForm);
-      submitButton.addEventListener("click", function(event) {
-            let pseudo= document.querySelector("#username").value
-            let pwd=document.querySelector("#password").value
-            let json_user={
-                "pseudo":pseudo,
-                'password':pwd
-            }
-            
+    let submitButton = document.querySelector(".btn.btn-primary");
+    let form = document.querySelector(".form-group")
+    function handleForm(event) { event.preventDefault(); }
+    form.addEventListener('submit', handleForm);
+    submitButton.addEventListener("click", function (event) {
+        let email = document.querySelector("#username").value
+        let pwd = document.querySelector("#password").value
+        let json_user = {
+            "email": email,
+            'password': pwd
+        }
 
-
-            axios.post("/api/user/connect",json_user)
+        axios.post("/api/user/connect", json_user)
             .then(function (response) {
-                data=response["data"]
-                if (data["error"]==undefined) {
+                data = response["data"]
+                if (data["error"] == undefined) {
+                    window.sessionStorage.setItem("user", JSON.stringify(data))
                     window.location.replace("/main");
-
                 } else {
-                    console.log("mauvais mot de passe / idnetifiant")
-
-
+                    console.log("mauvais mot de passe / identifiant")
                 }
             })
             .catch(function (error) {
                 // handle error
                 console.log(error["error"]);
             })
-        
-
-        
-
-            
-
-   
-  });
+    });
 
     /*axios.get('/api/computer/complete/'+computer.computerID)
             .then(function (response) {
                 data=response["data"]
-            
-                
             })
             .catch(function (error) {
                 // handle error
