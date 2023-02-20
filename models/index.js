@@ -1,21 +1,22 @@
 const { Schema, model } = require("mongoose")
 
 const userSchema = new Schema({
+    email: {
+        type: Schema.Types.String, 
+        unique: true,
+        required: true
+    },
     pseudo: Schema.Types.String,
-    password: Schema.Types.String, 
+    password: Schema.Types.String,
     specialId: Schema.Types.String,
     connected: {
         type: Schema.Types.Boolean,
         default: false
     },
-    conversations: [{type: Schema.Types.ObjectId, ref: "Chat"}],
-    lastDeconnection: {
-        type: Schema.Types.Date,
-        default: Date.now
-    }
+    conversations: [{type: Schema.Types.ObjectId, ref: "Chat"}]
 })
-userSchema.index({specialId: 1, pseudo: 1, type: 1, unique: true})
-
+userSchema.index({specialId: 1, pseudo: 1, unique: true})
+userSchema.index({email: 1, unique: true})
 
 const messageSchema = new Schema({
     from: {type: Schema.Types.ObjectId, ref: "User"},

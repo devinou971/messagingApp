@@ -212,19 +212,17 @@ apiRouter.get("/user/", async function(req, res){
 
 // POST connect the user 
 apiRouter.post("/user/connect", async function(req, res){
-    const userPseudoId = req.body.pseudo
+    const email = req.body.email
     const password = req.body.password
-    if(userPseudoId && password){
-        const userPseudo = userPseudoId.split("_")[0]
-        const userSpecialId = "_" + userPseudoId.split("_")[1]
-        const foundUser = await User.findOne({pseudo: userPseudo, specialId: userSpecialId, password: password}).select("-password")
+    if(email && password){
+        const foundUser = await User.findOne({email: email, password: password}).select("-password")
         if(foundUser){
             res.json(foundUser)
         } else {
-            res.json({error: "pseudo or password incorrect"})
+            res.json({error: "email or password incorrect"})
         }
     } else {
-        res.json({error : "pseudo and password must be present in the request body"})
+        res.json({error : "email and password must be present in the request body"})
     }
 })
 
