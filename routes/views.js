@@ -66,4 +66,8 @@ viewRouter.get("/user/:userpseudo", async function(req, res){
     }
 })
 
+viewRouter.get("/create/user/", async function(req, res){
+    res.render("createUser", {socketHost : process.env.SOCKET_HOST, listenPort: process.env.LISTEN_PORT})
+})
+
 module.exports = viewRouter

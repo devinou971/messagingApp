@@ -175,9 +175,22 @@ apiRouter.get("/user/:userid/messages", async function(req, res){
 // POST user to create a user
 apiRouter.post("/user", async function(req, res){
     console.log(req.body)
-    newUser = new User(req.body)
-    await newUser.save()
-    res.json(newUser)
+    if(!req.body.email || !req.body.pseudo){
+        res.json({error: "The new user must have an email and a pseudo"});
+    } else {
+        const existingUser = await User.findOne({email: req.body.email});
+        if(existingUser) {
+            res.json({error: "This email is already in use"})    
+        } else {
+            if( ! /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(req.body.email)){
+                res.json({error: "The mail is in the wrong format"})    
+            } else {
+                newUser = new User(req.body);
+                await newUser.save();
+                res.json(newUser);
+            }
+        }
+    }
 })
 
 // GET user
