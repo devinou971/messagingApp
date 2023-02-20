@@ -60,7 +60,7 @@ apiRouter.get("/chat/:id/users", async function(req, res){
         const users = await User.find({conversations: chat._id}).select("-password -conversations")
         redisClient.select(5)
         for(let user of users){
-            user.connected = isUserConnected(user._id, redisClient)
+            user.connected = await isUserConnected(user._id, redisClient)
         }
         res.json(users)
     } else {
