@@ -13,15 +13,16 @@
     </title>
 </head>
 
-<body>
-    <section style="background-color: #eee;">
+<body style="background-color: #eee;">
+    <section>
         <div class="container py-5">
             <div class="row">
                 <div class="col">
                     <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
                         <ol class="breadcrumb mb-0">
                             <li class="breadcrumb-item"><a href="#">Chats</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">User Profile</li>
+                            <li class="breadcrumb-item active" aria-current="page">Utilisateur</li>
+                            <li class="breadcrumb-item active" aria-current="page"><%= user.pseudo + user.specialId%></li>
                         </ol>
                     </nav>
                 </div>
@@ -35,7 +36,7 @@
                                 alt="profile picture" class="rounded-circle img-fluid" style="width: 150px; height: 150px; border-radius: 15px;">
                             <h5 class="my-3"> <%= user.pseudo + user.specialId %> </h5>
                             <p class="text-muted mb-4 <%= user.connected ? "connected" : "disconnected"%>"><%= user.connected ? "Currently Online" : "Currently offline"%></p>
-                            <button onclick="createConversation()" type="button" class="btn btn-primary ms-1">Send a Message</button>
+                            <button onclick="createConversation()" id="createConversationButton" type="button" class="btn btn-primary ms-1">Envoyer un message</button>
                         </div>
                     </div>
                 </div>
@@ -44,7 +45,7 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">User name</p>
+                                    <p class="mb-0">Pseudo</p>
                                 </div>
                                 <div class="col-sm-9">
                                     <p class="text-muted mb-0"><%= user.pseudo %></p>
@@ -53,7 +54,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Special Id</p>
+                                    <p class="mb-0">Identifiant spécial</p>
                                 </div>
                                 <div class="col-sm-9">
                                     <p class="text-muted mb-0"><%= user.specialId %></p>
@@ -62,7 +63,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Last connection</p>
+                                    <p class="mb-0">Dernière connexion</p>
                                 </div>
                                 <div class="col-sm-9">
                                     <p class="text-muted mb-0"><%= Number.isNaN(infos.lastConnection)? "" : new Date(infos.lastConnection) %></p>
@@ -71,7 +72,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Longest session</p>
+                                    <p class="mb-0">La session la plus longue</p>
                                 </div>
                                 <div class="col-sm-9">
                                     <p class="text-muted mb-0"><%= infos.sessions.length == 0 ? 0 : Math.max.apply(Math, infos.sessions) %> mins</p>
@@ -80,7 +81,7 @@
                             <hr>
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Number of Messages</p>
+                                    <p class="mb-0">Nombre de message envoyé</p>
                                 </div>
                                 <div class="col-sm-9">
                                     <p class="text-muted mb-0"><%= infos.nbMessages %> messages</p>
@@ -89,7 +90,6 @@
                         </div>
                     </div>
                     <div class="row">
-                        <!-- <div class="col-md-6"> -->
                         <div>
                             <div class="card mb-4 mb-md-0">
                                 <div class="card-body">
@@ -120,25 +120,6 @@
 
         const socket = io(`${socketHost}?userid=${currentUser._id+""}`)
 
-        const sessions = JSON.parse('<%- JSON.stringify(infos.sessions) %>') 
-        const trace = {
-            x: sessions, 
-            type: 'histogram',
-            histfunc: "count",
-            xbins: {
-                size: 0.06, 
-            }
-        }
-        const layout = {
-            xaxis: {
-                title: "Session durations",
-                rangemode: 'tozero',
-            }, 
-            title: "Session duration distribution",
-            bargap: 0.05, 
-        }
-        Plotly.newPlot("sessionsPlot", [trace], layout)
-
         async function createConversation(){
             const chatInfos = {
                 name: `Chat between ${currentUser.pseudo + currentUser.specialId} & ${describedUser.pseudo + describedUser.specialId}`,
@@ -163,6 +144,30 @@
             }
         }
 
+        window.onload = () => {
+            if(describedUser._id == currentUser._id){
+                document.querySelector("#createConversationButton").disabled = true
+            }
+
+            const sessions = JSON.parse('<%- JSON.stringify(infos.sessions) %>') 
+            const trace = {
+                x: sessions,
+                type: 'histogram',
+                histfunc: "count",
+                xbins: {
+                    size: 0.06, 
+                }
+            }
+            const layout = {
+                xaxis: {
+                    title: "Session durations",
+                    rangemode: 'tozero',
+                }, 
+                title: "Session duration distribution",
+                bargap: 0.05, 
+            }
+            Plotly.newPlot("sessionsPlot", [trace], layout)
+        }
     </script>
 </body>
 </html>
