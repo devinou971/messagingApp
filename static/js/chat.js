@@ -61,7 +61,7 @@ const usersPromise = axios.get(`/api/chat/${chat._id}/users`)
 
 // Receive all the new messages
 window.onload = async() => {
-    const maxHeight = parseInt(window.screen.availHeight * 0.65)
+    const maxHeight = parseInt(window.screen.availHeight * 0.50)
     document.querySelector("#messageContainer").style.maxHeight = `${maxHeight}px`
     
     // Get all existing messages in database
@@ -106,8 +106,4 @@ window.onload = async() => {
 
         }
     })
-
-    //TODO: Create an online event that send an event when a user gets online
-    //TODO: Create an event that sends an event when a user disconnects
-
 }

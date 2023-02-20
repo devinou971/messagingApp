@@ -10,52 +10,64 @@
     <link href="//cdn.quilljs.com/1.3.6/quill.core.css" rel="stylesheet">
     <link href="/static/css/chatStyle.css" rel="stylesheet">
 </head>
-<body>
-<div class="row d-flex justify-content-center">
-    <div id="messagesCard" class="card side-container">
-        <div id="messageContainer" class="card-body overflow-auto ">
-            <template id="messageSentTemplate">
-                <div class="d-flex flex-row justify-content-end mb-4">
-                    <div>
-                        <div class="small text-muted user-name">User name template</div>
-                        <div class="p-3 me-3 border ql-snow" style="border-radius: 15px; background-color: #fbfbfb;">
-                            <p class="small mb-0 message-text ql-editor">Message template</p>
-                        </div>
-                        <div class="small text-muted time" style="text-align: right; margin-right: 10px;">Time template</div>
-                    </div>
-                    <img class="profile-picture" src="/static/images/default_pp.png">
-                </div>
-            </template>
-            
-            <template id="messageReceivedTemplate">
-                <div class="d-flex flex-row justify-content-start mb-4">
-                    <img class="profile-picture" src="/static/images/default_pp.png">
-                    <div>
-                        <div class="small text-muted user-name">User name template</div>
-                        <div class="p-3 ms-3 ql-snow" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
-                            <p class="small mb-0 message-text ql-editor">Message template</p>
-                        </div>
-                        <div class="small text-muted time">Time template</div>
-                    </div>
-                </div>
-            </template>
-        </div>
-        <div class="card-body">
-            <div id="editor"></div>
-            <button type="button" class="btn btn-primary" style="width: 100%;" id="sendMessageButton">Send message</button>
+<body style="background-color: #eee;">
+<div class="container py-5">
+    <div class="row">
+        <div class="col">
+            <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/main">Chats</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><%= chat.name %></li>
+                </ol>
+            </nav>
         </div>
     </div>
-
-    <div id="usersCard" class="card side-container" style="height: 100%; margin: 10px;">
-        <div id="userCardContainer" class="card-body overflow-auto">
-            <template id="userCardTemplate">
-                <div class="d-flex flex-row justify-content-start mb-4" style="margin-left: 20px; margin-right: 20px;">
-                    <img class="profile-picture" src="/static/images/default_pp.png">
-                    <div class="small text-muted user-name">
-                        <a href="#">User name template</a>
+    <div class="row d-flex justify-content-center">
+        <div id="messagesCard" class="card side-container col">
+            <div id="messageContainer" class="card-body overflow-auto ">
+                <template id="messageSentTemplate">
+                    <div class="d-flex flex-row justify-content-end mb-4">
+                        <div>
+                            <div class="small text-muted user-name">User name template</div>
+                            <div class="p-3 me-3 border ql-snow" style="border-radius: 15px; background-color: #fbfbfb;">
+                                <p class="small mb-0 message-text ql-editor">Message template</p>
+                            </div>
+                            <div class="small text-muted time" style="text-align: right; margin-right: 10px;">Time template</div>
+                        </div>
+                        <img class="profile-picture" src="/static/images/default_pp.png">
                     </div>
-                </div>
-            </template>
+                </template>
+                
+                <template id="messageReceivedTemplate">
+                    <div class="d-flex flex-row justify-content-start mb-4">
+                        <img class="profile-picture" src="/static/images/default_pp.png">
+                        <div>
+                            <div class="small text-muted user-name">User name template</div>
+                            <div class="p-3 ms-3 ql-snow" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                                <p class="small mb-0 message-text ql-editor">Message template</p>
+                            </div>
+                            <div class="small text-muted time">Time template</div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <div class="card-body">
+                <div id="editor"></div>
+                <button type="button" class="btn btn-primary" style="width: 100%;" id="sendMessageButton">Envoyer le message</button>
+            </div>
+        </div>
+    
+        <div id="usersCard" class="card side-container" style="height: 100%; margin: 10px;">
+            <div id="userCardContainer" class="card-body overflow-auto">
+                <template id="userCardTemplate">
+                    <div class="d-flex flex-row justify-content-start mb-4" style="margin-left: 20px; margin-right: 20px;">
+                        <img class="profile-picture" src="/static/images/default_pp.png">
+                        <div class="small text-muted user-name">
+                            <a href="#">User name template</a>
+                        </div>
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
 </div>
@@ -70,7 +82,6 @@
 <script>
     const chat = JSON.parse('<%- JSON.stringify(chat) %>')
     const socketHost = "<%= socketHost %>:<%= listenPort %>";
-
 </script>
 <script src="/static/js/chat.js"></script>
 </body>

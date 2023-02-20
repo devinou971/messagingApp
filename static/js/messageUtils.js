@@ -22,7 +22,7 @@ function createMessageElement(message, user){
         minute: '2-digit'
     });
 
-    messageContainer.querySelector(".time").innerHTML = `Sent on ${dateString} at ${timeString}`
+    messageContainer.querySelector(".time").innerHTML = `Envoyé le ${dateString} à ${timeString}`
     messageContainer.querySelector(".user-name").innerHTML = message.from.pseudo + message.from.specialId
 
     if(message.from.profilePicture){
