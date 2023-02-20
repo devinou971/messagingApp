@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create a new user</title>
+    <title>Inscription</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
@@ -17,41 +17,40 @@
                     <div class="col-12 col-md-9 col-lg-7 col-xl-6">
                         <div class="card" style="border-radius: 15px;">
                             <div class="card-body p-5">
-                                <h2 class="text-uppercase text-center mb-5">Create an account</h2>
+                                <h2 class="text-uppercase text-center mb-5">Inscription</h2>
                                 <form>
-                                    <div id="errors">
+                                    <div id="errors" style="color: red;">
 
                                     </div>
                                     <div class="form-outline mb-4">
-                                        <label class="form-label" for="pseudoInput">Your pseudo *</label>
+                                        <label class="form-label" for="pseudoInput">Votre pseudo *</label>
                                         <input type="text" id="pseudoInput" name="pseudoInput" class="form-control form-control-lg" />
                                     </div>
 
                                     <div class="form-outline mb-4">
-                                        <label class="form-label" for="email">Your Email *</label>
+                                        <label class="form-label" for="email">Votre email *</label>
                                         <input type="email" id="email" name="email" class="form-control form-control-lg" />
                                     </div>
 
                                     <div class="form-outline mb-4">
-                                        <label class="form-label" for="password">Password *</label>
+                                        <label class="form-label" for="password">Mot de passe *</label>
                                         <input type="password" id="password" name="password"
                                             class="form-control form-control-lg" />
                                     </div>
 
                                     <div class="form-outline mb-4">
-                                        <label class="form-label" for="passwordConfirmation">Repeat your password *</label>
+                                        <label class="form-label" for="passwordConfirmation">Confirmer votre mot de passe *</label>
                                         <input type="password" id="passwordConfirmation" name="passwordConfirmation"
                                             class="form-control form-control-lg" />
                                     </div>
 
                                     <div class="d-flex justify-content-center">
                                         <button type="button" onclick="createAccount()"
-                                            class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Create account</button>
+                                            class="btn btn-block btn-lg btn-primary text-body">Continuer</button>
                                     </div>
 
-                                    <p class="text-center text-muted mt-5 mb-0">Have already an account? <a href="/connexion"
-                                            class="fw-bold text-body"><u>Login here</u></a></p>
-
+                                    <p class="text-center text-muted mt-5 mb-0">Vous avez déja un compte? <a href="/connexion"
+                                            class="fw-bold text-body"><u>Connectez vous ici</u></a></p>
                                 </form>
                             </div>
                         </div>
@@ -113,7 +112,5 @@
 
         }
     </script>
-
 </body>
-
 </html>
