@@ -32,7 +32,7 @@ const options = {
 const editor = new Quill("#editor", options)
 
 // Send the new message
-document.querySelector('#sendMessageButton').addEventListener('click', function() {
+function sendMessage(){
     const content = editor.root.innerHTML;
 
     const messageJson = {
@@ -54,7 +54,23 @@ document.querySelector('#sendMessageButton').addEventListener('click', function(
     .catch(function (err) {
         console.log(err);
     })
-});
+}
+
+async function inviteUser(){
+    const userpseudo = document.querySelector("#pseudo").value;
+    const responseUser = await axios.get("/api/user/find/" + userpseudo);
+    if(responseUser.data.error){
+        alert(responseUser.data.error);
+    } else {
+
+        const responseInvite = await axios.put(`/api/user/${responseUser.data._id}/chat/${chat._id}`);
+        if(responseInvite.data.error){
+            alert(responseInvite.data.error)
+        } else {
+            window.location.reload();
+        }
+    }
+}
 
 const messagesPromise = axios.get(`/api/chat/${chat._id}/messages`)
 const usersPromise = axios.get(`/api/chat/${chat._id}/users`)

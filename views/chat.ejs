@@ -53,7 +53,7 @@
             </div>
             <div class="card-body">
                 <div id="editor"></div>
-                <button type="button" class="btn btn-primary" style="width: 100%;" id="sendMessageButton">Envoyer le message</button>
+                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="sendMessage()" id="sendMessageButton">Envoyer le message</button>
             </div>
         </div>
     
@@ -67,6 +67,14 @@
                         </div>
                     </div>
                 </template>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="form-outline mb-4">
+                        <input type="text" id="pseudo" name="pseudo" class="form-control" placeholder="Pseudo utilisateur" />
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;" onclick="inviteUser()" id="inviteUserButton">Inviter l'utilisateur</button>
+                </form>
             </div>
         </div>
     </div>
