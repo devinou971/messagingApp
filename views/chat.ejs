@@ -68,6 +68,7 @@
                     </div>
                 </template>
             </div>
+            <% if(!chat.public){ %>
             <div class="card-body">
                 <form>
                     <div class="form-outline mb-4">
@@ -76,6 +77,7 @@
                     <button type="button" class="btn btn-primary" style="width: 100%;" onclick="inviteUser()" id="inviteUserButton">Inviter l'utilisateur</button>
                 </form>
             </div>
+            <% } %>
         </div>
     </div>
 </div>
