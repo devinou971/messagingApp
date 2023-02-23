@@ -58,7 +58,7 @@ function sendMessage(){
 
 async function inviteUser(){
     const userpseudo = document.querySelector("#pseudo").value;
-    const responseUser = await axios.get("/api/user/find/" + userpseudo);
+    const responseUser = await axios.get("/api/find/user/" + userpseudo);
     if(responseUser.data.error){
         alert(responseUser.data.error);
     } else {
@@ -112,6 +112,8 @@ window.onload = async() => {
         console.log("Connection made");
     })
 
+    let popupNumber = 0;
+
     socket.on("new message", async function(response){
         const message = response
         if(message.to._id == chat._id){
@@ -119,7 +121,24 @@ window.onload = async() => {
             messageContainer.appendChild(newMessage)
             messageContainer.scrollTop = messageContainer.scrollHeight 
         } else {
-
+            const popup = document.createElement("div");
+            const img = document.createElement("img");
+            img.src = "/static/images/messageIcon.png"
+            img.width = 20;
+            popup.appendChild(img)
+            popup.innerHTML += message.to.name;
+            popup.classList.add("popup");
+            document.querySelector("#popupContainer").appendChild(popup);
+            popup.style.top = popupNumber * (popup.offsetHeight + 10) + 40 + "px"
+            popupNumber += 1;
+            console.log(popupNumber + popup.style.top)
+            setTimeout( ()=> {
+                popup.classList.add("hidden");
+                setTimeout(() => {
+                    popup.remove();
+                    popupNumber -= 1;
+                }, 1000)
+            }, 2000 )
         }
     })
 }

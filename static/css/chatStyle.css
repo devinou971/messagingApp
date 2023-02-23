@@ -22,3 +22,29 @@
     border-radius: 5px;
     background-color: rgba(255, 0, 0, 0.3) ;
 }
+
+/* CSS */
+.popup {
+    position: fixed;
+    top: 20px;
+    left: -500px; /* Start offscreen */
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    animation: slide-in 0.3s forwards; 
+    border-radius: 10px;
+}
+  
+@keyframes slide-in {
+    from { left: -500px; }
+    to { left: 20px; }
+}
+  
+.popup.hidden {
+    animation: slide-out 0.3s forwards; /* Animate out */
+}
+  
+@keyframes slide-out {
+    from { left: 20px; }
+    to { left: -500px; }
+}

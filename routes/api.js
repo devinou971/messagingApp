@@ -13,7 +13,6 @@ apiRouter.get("/ping", function(req, res){
 })
 
 // POST chat to create a chat
-//     "userid" : "63ec8398aca9baffa00"
 // Must send the infos of the chat as well as the userId to add the server to the user's list
 apiRouter.post("/chat/", async function(req, res){
     if(req.body.userid && req.body.userid.length == 24){
@@ -52,12 +51,23 @@ apiRouter.get("/chat/:id", async function(req, res){
     }
 })
 
+// GET chat stats 
+apiRouter.get("/chat/:id/stats", async function(req, res){
+    const id = req.params.id;
+    const chat = await Chat.findById(id);
+    if(chat){
+        
+    } else {
+        res.json({error: "This chat doesn't exist"})
+    }
+})
+
 // GET chat to users in chat
 apiRouter.get("/chat/:id/users", async function(req, res){
     const id = req.params.id
     const chat = await Chat.findById(id)
     if (chat){
-        const users = await User.find({conversations: chat._id}).select("-password -conversations")
+        const users = await User.find({conversations: chat._id}).select("-password -conversations -email")
         redisClient.select(5)
         for(let user of users){
             user.connected = await isUserConnected(user._id, redisClient)
@@ -174,7 +184,6 @@ apiRouter.get("/user/:userid/messages", async function(req, res){
 
 // POST user to create a user
 apiRouter.post("/user", async function(req, res){
-    console.log(req.body)
     if(!req.body.email || !req.body.pseudo){
         res.json({error: "The new user must have an email and a pseudo"});
     } else {
@@ -196,7 +205,7 @@ apiRouter.post("/user", async function(req, res){
 // GET user
 apiRouter.get("/user/:id", async function(req, res){
     const id = req.params.id  
-    const user = await User.findOne({_id: id}).select("-password")
+    const user = await User.findOne({_id: id}).select("-password -email")
     if (user){
         res.json(user)
     } else {
@@ -205,11 +214,11 @@ apiRouter.get("/user/:id", async function(req, res){
 })
 
 // GET find user
-apiRouter.get("/user/find/:pseudo", async function(req, res){
+apiRouter.get("/find/user/:pseudo", async function(req, res){
     const array = req.params.pseudo.split("_")
     const specialId = "_" + array.pop()
     const pseudo = array.join("_")
-    const user = await User.findOne({pseudo: pseudo, specialId: specialId}).select("-password")
+    const user = await User.findOne({pseudo: pseudo, specialId: specialId}).select("-password -email")
     if (user){
         res.json(user)
     } else {
@@ -228,7 +237,7 @@ apiRouter.post("/user/connect", async function(req, res){
     const email = req.body.email
     const password = req.body.password
     if(email && password){
-        const foundUser = await User.findOne({email: email, password: password}).select("-password")
+        const foundUser = await User.findOne({email: email, password: password}).select("-password -email -conversations")
         if(foundUser){
             res.json(foundUser)
         } else {
