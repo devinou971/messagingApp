@@ -150,21 +150,19 @@ module.exports = (io, redisClient) => {
         res.json(allMessages)
     })
 
-    // GET messages of chat 
-    apiRouter.get("/chat/:chatid/messages", async function(req, res){
-        const chatId = req.params.chatid
-        const allMessages = await Message.find({to: chatId})
-        for (let message of allMessages){
-            message = await message.populate("from")
-            message.from.password = ""
-            message.from.conversations = []
-        }
-        if(allMessages.length == 0){
-            res.json({error: "No messages found to conversation " + chatId})
-        } else {
-            res.json(allMessages)
-        }
-    })
+// GET messages of chat 
+apiRouter.get("/chat/:chatid/messages", async function(req, res){
+    const chatId = req.params.chatid
+    const allMessages = await Message.find({to: chatId})
+    for (let message of allMessages){
+        message = await message.populate("from")
+        message.from.password = ""
+        message.from.conversations = []
+    }
+    
+    res.json(allMessages)
+    
+})
 
     // GET messages of user
     apiRouter.get("/user/:userid/messages", async function(req, res){
