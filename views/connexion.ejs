@@ -1,6 +1,9 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="fr">
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page de connexion</title>
     <!-- Inclusion de Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
@@ -9,7 +12,11 @@
 <body>
     <div class="container">
         <h1 class="text-center my-5">Connexion</h1>
+
         <form class="form-group">
+            <p id="errors" style="color: red;">
+
+            </p>
             <label for="username">Nom d'utilisateur :</label>
             <input type="text" class="form-control" id="username" name="username">
             <br><br>
@@ -23,11 +30,15 @@
 
 </html>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
 <script>
     let submitButton = document.querySelector(".btn.btn-primary");
     let form = document.querySelector(".form-group")
     function handleForm(event) { event.preventDefault(); }
     form.addEventListener('submit', handleForm);
+
+    const errorDiv = document.querySelector("#errors");
+
     submitButton.addEventListener("click", function (event) {
         let email = document.querySelector("#username").value
         let pwd = document.querySelector("#password").value
@@ -43,22 +54,12 @@
                     window.sessionStorage.setItem("user", JSON.stringify(data))
                     window.location.replace("/main");
                 } else {
-                    console.log("mauvais mot de passe / identifiant")
+                    errorDiv.textContent = "mauvais mot de passe / identifiant"
                 }
             })
             .catch(function (error) {
                 // handle error
-                console.log(error["error"]);
+                errorDiv.textContent = error["error"]
             })
     });
-
-    /*axios.get('/api/computer/complete/'+computer.computerID)
-            .then(function (response) {
-                data=response["data"]
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-            })*/
-
 </script>
