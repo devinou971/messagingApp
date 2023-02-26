@@ -1,133 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%- chat.name %></title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link href="/static/css/quill.snow.css" rel="stylesheet">
     <link href="/static/css/quill.core.css" rel="stylesheet">
     <link href="/static/css/chatStyle.css" rel="stylesheet">
 </head>
+
 <body style="background-color: #eee;">
-<div id="popupContainer">
-</div>
-<div class="container py-5">
-    <div class="row">
-        <div class="col">
-            <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="/main">Chats</a></li>
-                    <li class="breadcrumb-item active" aria-current="page"><%= chat.name %></li>
-                </ol>
-            </nav>
+    <div id="popupContainer">
+    </div>
+    <div class="container py-5">
+        <div class="row">
+            <div class="col">
+                <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/main">Chats</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <%= chat.name %>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center">
+
+            <div id="messagesCard" class="card side-container col">
+                <div id="messageContainer" class="card-body overflow-auto ">
+                    <template id="messageSentTemplate">
+                        <div class="d-flex flex-row justify-content-end mb-4">
+                            <div>
+                                <div class="small text-muted user-name">User name template</div>
+                                <div class="p-3 me-3 border ql-snow"
+                                    style="border-radius: 15px; background-color: #fbfbfb;">
+                                    <p class="small mb-0 message-text ql-editor">Message template</p>
+                                </div>
+                                <div class="small text-muted time" style="text-align: right; margin-right: 10px;">Time
+                                    template</div>
+                            </div>
+                            <img class="profile-picture" src="/static/images/default_pp.png">
+                        </div>
+                    </template>
+
+                    <template id="messageReceivedTemplate">
+                        <div class="d-flex flex-row justify-content-start mb-4">
+                            <img class="profile-picture" src="/static/images/default_pp.png">
+                            <div>
+                                <div class="small text-muted user-name">User name template</div>
+                                <div class="p-3 ms-3 ql-snow"
+                                    style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                                    <p class="small mb-0 message-text ql-editor">Message template</p>
+                                </div>
+                                <div class="small text-muted time">Time template</div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="card-body">
+                    <div id="editor"></div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;"
+                        onclick="sendMessage();changecolor();" id="sendMessageButton">Envoyer le message</button>
+                </div>
+            </div>
+
+            <div id="usersCard" class="card side-container" style="height: 100%; margin: 10px;">
+                <div id="userCardContainer" class="card-body overflow-auto">
+                    <template id="userCardTemplate">
+                        <div class="d-flex flex-row justify-content-start mb-4"
+                            style="margin-left: 20px; margin-right: 20px;">
+                            <img class="profile-picture" src="/static/images/default_pp.png">
+                            <div class="small text-muted user-name">
+                                <a href="#">User name template</a>
+                            </div>
+                        </div>
+                    </template>
+                    <% if(chat.public){ for(const user of mostActiveUsers){ %>
+
+                        <div class="d-flex flex-row justify-content-start mb-4"
+                            style="margin-left: 20px; margin-right: 20px;">
+                            <img class="profile-picture"
+                                src="<%= user.profilePicture ? user.profilePicture : '/static/images/default_pp.png' %>">
+                            <div class="small text-muted user-name">
+                                <a href="/user/<%- user.pseudo %>"><%- user.pseudo %></a>
+                            </div>
+                        </div>
+                        <% } }%>
+                </div>
+                <% if(!chat.public){ %>
+                    <div class="card-body">
+                        <form>
+                            <div class="form-outline mb-4">
+                                <input type="text" id="pseudo" name="pseudo" class="form-control"
+                                    placeholder="Pseudo utilisateur" />
+                            </div>
+                            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="inviteUser()"
+                                id="inviteUserButton">Inviter l'utilisateur</button>
+                        </form>
+                    </div>
+                    <% } %>
+            </div>
         </div>
     </div>
-    <div class="row d-flex justify-content-center">
-        
-        <div id="messagesCard" class="card side-container col">
-            <div id="messageContainer" class="card-body overflow-auto ">
-                <template id="messageSentTemplate">
-                    <div class="d-flex flex-row justify-content-end mb-4">
-                        <div>
-                            <div class="small text-muted user-name">User name template</div>
-                            <div class="p-3 me-3 border ql-snow" style="border-radius: 15px; background-color: #fbfbfb;">
-                                <p class="small mb-0 message-text ql-editor">Message template</p>
-                            </div>
-                            <div class="small text-muted time" style="text-align: right; margin-right: 10px;">Time template</div>
-                        </div>
-                        <img class="profile-picture" src="/static/images/default_pp.png">
-                    </div>
-                </template>
-                
-                <template id="messageReceivedTemplate">
-                    <div class="d-flex flex-row justify-content-start mb-4">
-                        <img class="profile-picture" src="/static/images/default_pp.png">
-                        <div>
-                            <div class="small text-muted user-name">User name template</div>
-                            <div class="p-3 ms-3 ql-snow" style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
-                                <p class="small mb-0 message-text ql-editor">Message template</p>
-                            </div>
-                            <div class="small text-muted time">Time template</div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-            <div class="card-body">
-                <div id="editor"></div>
-                <button type="button" class="btn btn-primary" style="width: 100%;" onclick="sendMessage();changecolor();" id="sendMessageButton">Envoyer le message</button>
-            </div>
-        </div>
-    
-        <div id="usersCard" class="card side-container" style="height: 100%; margin: 10px;">
-            <div id="userCardContainer" class="card-body overflow-auto">
-                <template id="userCardTemplate">
-                    <div class="d-flex flex-row justify-content-start mb-4" style="margin-left: 20px; margin-right: 20px;">
-                        <img class="profile-picture" src="/static/images/default_pp.png">
-                        <div class="small text-muted user-name">
-                            <a href="#">User name template</a>
-                        </div>
-                    </div>
-                </template>
-                <%  if(chat.public){
-                        for(const user of mostActiveUsers){  %>
-                    
-                    <div class="d-flex flex-row justify-content-start mb-4" style="margin-left: 20px; margin-right: 20px;">
-                        <img class="profile-picture" src="<%= user.profilePicture ? user.profilePicture : '/static/images/default_pp.png' %>">
-                        <div class="small text-muted user-name">
-                            <a href="/user/<%- user.pseudo %>"><%- user.pseudo %></a>
-                        </div>
-                    </div>
-                <%      } 
-                    }%>
-            </div>
-            <% if(!chat.public){ %>
-            <div class="card-body">
-                <form>
-                    <div class="form-outline mb-4">
-                        <input type="text" id="pseudo" name="pseudo" class="form-control" placeholder="Pseudo utilisateur" />
-                    </div>
-                    <button type="button" class="btn btn-primary" style="width: 100%;" onclick="inviteUser()" id="inviteUserButton">Inviter l'utilisateur</button>
-                </form>
-            </div>
-            <% } %>
-        </div>
-    </div>
-</div>
 
-<!-- Importing Socket.io, Quill and Axios -->
-<script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
-<script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- Importing Socket.io, Quill and Axios -->
+    <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
+    <script src="//cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-<script src="/static/js/messageUtils.js"></script>
+    <script src="/static/js/messageUtils.js"></script>
 
-<script>
-    const chat = JSON.parse('<%- JSON.stringify(chat) %>')
-    const socketHost = "<%= socketHost %>:<%= listenPort %>";
+    <script>
+        const chat = JSON.parse('<%- JSON.stringify(chat) %>')
+        const socketHost = "<%= socketHost %>:<%= listenPort %>";
 
 
-</script>
-<script>
-function changecolor() {
-    let content=document.querySelectorAll(".ql-editor")
-    let lenght_div=content.length
-    content=content[lenght_div-1].innerHTML
-    console.log(content)
-    let split_c=content.split(" ")
-    console.log(content)
-    if(split_c[0]=="<p>/color_change"){
-        console.log("sdzfsegdrfhtgjyhj")
-        split_c2=split_c[1].split("</p>")
-        let class_div=document.querySelectorAll('.small.mb-0.message-text.ql-editor');
-        for (const iterator of class_div) {
-            iterator.style.color=split_c2[0]
-    }
+    </script>
+    <script>
+        function changecolor() {
+            let content = document.querySelectorAll(".ql-editor")
+            let lenght_div = content.length
+            content = content[lenght_div - 1].innerHTML
+            console.log(content)
+            let split_c = content.split(" ")
+            console.log(content)
+            if (split_c[0] == "<p>/color_change") {
+                console.log("sdzfsegdrfhtgjyhj")
+                split_c2 = split_c[1].split("</p>")
+                let class_div = document.querySelectorAll('.small.mb-0.message-text.ql-editor');
+                for (const iterator of class_div) {
+                    iterator.style.color = split_c2[0]
+                }
+            }
+
         }
-     
-}
-</script>
-<script src="/static/js/chat.js"></script>
+    </script>
+    <script src="/static/js/chat.js"></script>
 </body>
+
 </html>
