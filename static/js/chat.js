@@ -45,7 +45,7 @@ function sendMessage(){
         const messageJson = {
             from: user._id,
             to: chat._id,
-            content:"couleur changer"
+            content:content
         }
         
         axios.post("/api/message", messageJson)
