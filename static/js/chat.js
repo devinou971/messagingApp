@@ -34,26 +34,36 @@ const editor = new Quill("#editor", options)
 // Send the new message
 function sendMessage(){
     const content = editor.root.innerHTML;
+    let split_c=content.split(" ")
 
-    const messageJson = {
-        from: user._id,
-        to: chat._id,
-        content: content
-    }
-    
-    axios.post("/api/message", messageJson)
-    .then(function (response) {
-        data = response["data"]
-        if (data.error == undefined) {
-            console.log("Message sent")
-            console.log(data)
-        } else {
-            console.log(data)
+    if(split_c[0]=="<p>/color_change"){
+
+
+        
+
+    }else{
+        const messageJson = {
+            from: user._id,
+            to: chat._id,
+            content:"couleur changer"
         }
-    })
-    .catch(function (err) {
-        console.log(err);
-    })
+        
+        axios.post("/api/message", messageJson)
+        .then(function (response) {
+            data = response["data"]
+            if (data.error == undefined) {
+                console.log("Message sent")
+                console.log(data)
+            } else {
+                console.log(data)
+            }
+        })
+        .catch(function (err) {
+            console.log(err);
+        })
+           
+    }
+  
 }
 
 async function inviteUser(){
