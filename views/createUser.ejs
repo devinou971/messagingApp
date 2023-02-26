@@ -97,19 +97,16 @@
                 };
                 const response = await axios.post("/api/user", newUser);
                 if(response.data.error){
-                    document.querySelector("#errors").innerHTML = response.error;
+                    document.querySelector("#errors").innerHTML = response.data.error;
                 } else {
                     window.sessionStorage.setItem("user", JSON.stringify(response.data));
                     const socket = io(`${socketHost}?userid=${response.data._id+""}`);
                     alert("User creation is a success");
-                    setTimeout(()=>{
-                        window.location.replace("/user/" + newUser.pseudo + response.data.specialId);
-                    }, 2000)
+                    window.location.replace("/user/" + newUser.pseudo + response.data.specialId);
                 }
             } else {
                 document.querySelector("#errors").innerHTML = errorMessages;
             }
-
         }
     </script>
 </body>

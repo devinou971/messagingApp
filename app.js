@@ -8,49 +8,48 @@ require("dotenv").config()
 // Create the app
 const app = express();
 
-// Configure server
-app.use(logger('dev'));
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({extended: false}));
-app.set('view engine', 'ejs');
+const {initiate} = require("./database")
 
-// Setup HTTP server
-const server = require("http").createServer(app);
+initiate().then((redisClient) => {
+    // Configure server
+    app.use(logger('dev'));
+    app.use(cookieParser());
+    app.use(express.json());
+    app.use(express.urlencoded({extended: false}));
+    app.set('view engine', 'ejs');
 
-server.listen(process.env.LISTEN_PORT);
+    // Setup HTTP server
+    const server = require("http").createServer(app);
 
-server.on('listening', function () {
-    console.log("Le serveur est allumé");
-});
+    server.listen(process.env.LISTEN_PORT);
 
-server.on('error', function (error) {
-    console.error(error);
-});
+    server.on('listening', function () {
+        console.log("Le serveur est allumé");
+    });
 
-const io = require("socket.io")(server, {
-    cors: {
-        origin: (requestOrigin, callback) => {
-            callback(undefined, requestOrigin)
-        },
-        methods: ["GET", "POST"]
-    }
-});
+    server.on('error', function (error) {
+        console.error(error);
+    });
 
-const {createSocket, redisClient} = require("./socket");
-createSocket(io)
-redisClient.select(5)
-redisClient.flushAll()
+    const io = require("socket.io")(server, {
+        cors: {
+            origin: (requestOrigin, callback) => {
+                callback(undefined, requestOrigin)
+            },
+            methods: ["GET", "POST"]
+        }
+    });
 
-module.exports = {
-    io: io,
-    redisClient: redisClient
-}
+    const {createSocket} = require("./socket");
+    createSocket(redisClient, io)
+    redisClient.select(5)
+    redisClient.flushAll()
 
-const apiRouter = require("./routes/api");
-const viewRouter = require("./routes/views");
+    const apiRouter = require("./routes/api")(io, redisClient);
+    const viewRouter = require("./routes/views")(redisClient);
 
-app.use("/api", apiRouter)
-app.use("/", viewRouter)
+    app.use("/api", apiRouter)
+    app.use("/", viewRouter)
 
-app.use("/static", express.static("static"))
+    app.use("/static", express.static("static"))
+    })

@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose")
+const { Schema, model, Types } = require("mongoose")
 
 const userSchema = new Schema({
     email: {
@@ -84,5 +84,6 @@ const Chat = model("Chat", chatSchema)
 module.exports = {
     "User" : User,
     "Message" : Message,
-    "Chat" : Chat
+    "Chat" : Chat,
+    "ObjectId": Types.ObjectId
 }

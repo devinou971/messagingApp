@@ -1,7 +1,6 @@
-const redisClient = require("../database")
 const { User, Chat } = require("../models")
 
-function createSocket(io){
+function createSocket(redisClient, io){
     io.on("connection", async(socket) => {
         console.log(`Confirmed connection from ${socket.id}`)
         socket.emit("welcome", "Hello world")
@@ -67,6 +66,5 @@ function createSocket(io){
 }
 
 module.exports = {
-    createSocket: createSocket,
-    redisClient: redisClient
+    createSocket: createSocket
 }

@@ -3,25 +3,24 @@ const { createClient } = require("redis")
 
 require("dotenv").config()
 
-const DB_HOST = process.env.DB_HOST
-const DB_PORT = process.env.DB_PORT
+const REPLICASET_HOSTS = process.env.REPLICASET_HOSTS
 const REDIS_PORT = process.env.REDIS_PORT
 const REDIS_HOST = process.env.REDIS_HOST
 const DB_NAME = process.env.DB_NAME
+const REPLICASET_NAME = process.env.REPLICASET_NAME
 
-mongoose.set('strictQuery', false)
+module.exports = {initiate: async () => {
+    mongoose.set('strictQuery', false)
 
-mongoose.connect(`mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`, (err) => {
-    if (err){
-        throw err
-    }
-    console.log("Connected to database")    
-})
+    console.log(`mongodb://${REPLICASET_HOSTS}/${DB_NAME}?replicaSet=${REPLICASET_NAME}`)
+    await mongoose.connect(`mongodb://${REPLICASET_HOSTS}/${DB_NAME}?replicaSet=${REPLICASET_NAME}`)
+    console.log("Connection to Mongodb success");
 
-const redisClient = createClient({
-    url: `redis://${REDIS_HOST}:${REDIS_PORT}`
-});
-redisClient.on('error', err => console.log('Redis Client Error', err));
-redisClient.connect()
-
-module.exports = redisClient
+    const redisClient = createClient({
+        url: `redis://${REDIS_HOST}:${REDIS_PORT}`
+    });
+    redisClient.on('error', err => console.log('Redis Client Error', err));
+    await redisClient.connect()
+    console.log("Connection to Redis success");
+    return redisClient;
+}}

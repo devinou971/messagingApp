@@ -131,7 +131,6 @@ window.onload = async() => {
             document.querySelector("#popupContainer").appendChild(popup);
             popup.style.top = popupNumber * (popup.offsetHeight + 10) + 40 + "px"
             popupNumber += 1;
-            console.log(popupNumber + popup.style.top)
             setTimeout( ()=> {
                 popup.classList.add("hidden");
                 setTimeout(() => {
