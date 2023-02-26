@@ -15,7 +15,7 @@ module.exports = (redisClient) => {
     })
     
     viewRouter.get("/main", async function(req, res){
-        res.render("main")
+        res.render("main", {socketHost : process.env.SOCKET_HOST, listenPort: process.env.LISTEN_PORT})
     })
     
     viewRouter.get("/chat/:chatid", async function(req, res){
