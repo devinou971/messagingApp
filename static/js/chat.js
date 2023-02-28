@@ -1,10 +1,16 @@
+
+// If the user if not connected, we go back to the first page
 const user = JSON.parse(sessionStorage.getItem("user"))
 if(!user){
     window.location.replace("/connexion")
 }
 
 const socket = io(`${socketHost}?userid=${user._id+""}`)
+socket.on("welcome", function() {
+    console.log("Connection made");
+})
 
+// Quill wysiwyg configuration
 const toolbarOptions = [
     ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
     ['blockquote', 'code-block'],
@@ -29,19 +35,15 @@ const options = {
     theme: 'snow'
 }
 
+// Quill input creation
 const editor = new Quill("#editor", options)
 
-// Send the new message
+// Sends a new message
 function sendMessage(){
     const content = editor.root.innerHTML;
     let split_c=content.split(" ")
 
-    if(split_c[0]=="<p>/color_change"){
-
-
-        
-
-    }else{
+    if(split_c[0]!="<p>/color_change"){
         const messageJson = {
             from: user._id,
             to: chat._id,
@@ -66,13 +68,13 @@ function sendMessage(){
   
 }
 
+// Invites a user in the current chat
 async function inviteUser(){
     const userpseudo = document.querySelector("#pseudo").value;
     const responseUser = await axios.get("/api/find/user/" + userpseudo);
     if(responseUser.data.error){
         alert(responseUser.data.error);
     } else {
-
         const responseInvite = await axios.put(`/api/user/${responseUser.data._id}/chat/${chat._id}`);
         if(responseInvite.data.error){
             alert(responseInvite.data.error)
@@ -82,15 +84,16 @@ async function inviteUser(){
     }
 }
 
+// We load the promises to the messages and users, 
+// but we don't do anything before the page is loaded
 const messagesPromise = axios.get(`/api/chat/${chat._id}/messages`)
 const usersPromise = axios.get(`/api/chat/${chat._id}/users`)
 
-// Receive all the new messages
 window.onload = async() => {
     const maxHeight = parseInt(window.screen.availHeight * 0.50)
     document.querySelector("#messageContainer").style.maxHeight = `${maxHeight}px`
     
-    // Get all existing messages in database
+    // Get all existing messages and display them
     const messageContainer = document.querySelector("#messageContainer")
     messagesPromise.then((messages)=>{
         console.log(messages)   
@@ -100,29 +103,24 @@ window.onload = async() => {
                 messageContainer.appendChild(messageDiv)
             }
         } 
-        messageContainer.scrollTop = messageContainer.scrollHeight 
-
+        messageContainer.scrollTop = messageContainer.scrollHeight
     })
 
+    // Get all the users of the chat and display them
     usersPromise.then((users)=>{
         if(!users.data.error){
             for(let user_ of users.data){
                 if(user_._id == user._id){
                     user_.connected = true
                 }
-                console.log(user_)
                 const userContainer = createUserCard(user_)
-                document.querySelector("#userCardContainer").appendChild(userContainer)
-                
+                document.querySelector("#userCardContainer").appendChild(userContainer)                
             }
         }
     })
 
-    socket.on("welcome", function() {
-        console.log("Connection made");
-    })
-
-    let popupNumber = 0;
+    // When we receive a message that is not from the current
+    // chat, this variable will be useful
 
     socket.on("new message", async function(response){
         const message = response
@@ -131,23 +129,8 @@ window.onload = async() => {
             messageContainer.appendChild(newMessage)
             messageContainer.scrollTop = messageContainer.scrollHeight 
         } else {
-            const popup = document.createElement("div");
-            const img = document.createElement("img");
-            img.src = "/static/images/messageIcon.png"
-            img.width = 20;
-            popup.appendChild(img)
-            popup.innerHTML += message.to.name;
-            popup.classList.add("popup");
-            document.querySelector("#popupContainer").appendChild(popup);
-            popup.style.top = popupNumber * (popup.offsetHeight + 10) + 40 + "px"
-            popupNumber += 1;
-            setTimeout( ()=> {
-                popup.classList.add("hidden");
-                setTimeout(() => {
-                    popup.remove();
-                    popupNumber -= 1;
-                }, 1000)
-            }, 2000 )
+            // If the message comes from another chat, we create a popup 
+            createPopup(message.to.name)
         }
     })
 }

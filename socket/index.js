@@ -1,22 +1,32 @@
 const { User, Chat } = require("../models")
 
+
+/*
+  Creates all the basic interactions with the server socket
+  @param redisClient is the connection to the redis database
+  @param io is the socketIO instance
+*/
 function createSocket(redisClient, io){
+
     io.on("connection", async(socket) => {
         console.log(`Confirmed connection from ${socket.id}`)
-        socket.emit("welcome", "Hello world")
+        socket.emit("welcome", "Hello world");
 
-        const userid = socket.handshake.query["userid"]
-
-        // To connect, the user must send it's id
+        // If someone want to connect to the socket, he will need to have its id.
+        const userid = socket.handshake.query["userid"];
         if (userid !== undefined){
             try{
                 // Checking if user exists
                 const user = await User.findByIdAndUpdate(userid, {connected : true})
                 if(user){
-                    socket.handshake.auth.userid = userid 
-                    // Put the disconnection system in place
+                    socket.handshake.auth.userid = userid; 
+
+
+                    // A user will be disconnected only 5 second after 
+                    // the "disconect" event. 
+                    // It's useful to not reconnect that user when he
+                    // just change page in the app
                     socket.on("disconnect", async()=>{
-                        // Put the new connection in the redis database
                         setTimeout(()=>{
                             redisClient.select(5)
                             for(let [_, clientSocket] of io.sockets.sockets) {
@@ -26,12 +36,14 @@ function createSocket(redisClient, io){
                                 }
                             }
                             const date = new Date();
+                            // The redis database gets all the disconnections event
                             redisClient.lPush(user._id + ":allDisconnections", ""+ date.toISOString())
                             console.log("User " + userid + " disconnected")
                         },5000)
                     })
     
-                    // This is important : the user is disconnected only if he has been disconected for more than 5 seconds
+                    // The user is connected only if it's last disconnection is
+                    // after it's last connection.  
                     redisClient.select(5)
                     const lastConnection = await redisClient.lRange(user._id + ":allConnections", 0, 0)
                     const lastConnectionTime = Date.parse(lastConnection)
@@ -45,7 +57,8 @@ function createSocket(redisClient, io){
                         redisClient.lPush(user._id + ":allConnections", ""+ date.toISOString())
                     }
                     
-                    // Logging user into the appropriate rooms
+                    // The user is logged in all the rooms he occupies
+                    // + all the public rooms
                     const publicChats = await Chat.find({public: true})
                     const chatIds = (user.conversations.concat(publicChats.map(x => x._id))).map(x => "" + x)
                     console.log(socket.id + " Logging into rooms " + chatIds)
@@ -60,9 +73,9 @@ function createSocket(redisClient, io){
             }
         } else {
             console.log("UserId undefined")
+            socket.disconnect()
         }
     })
-    return redisClient
 }
 
 module.exports = {

@@ -56,3 +56,25 @@ function createUserCard(user){
 
     return userContainer
 }
+
+let popupNumber = 0;
+
+function createPopup(chatName){
+    const popup = document.createElement("div");
+    const img = document.createElement("img");
+    img.src = "/static/images/messageIcon.png"
+    img.width = 20;
+    popup.appendChild(img)
+    popup.innerHTML += chatName;
+    popup.classList.add("popup");
+    document.querySelector("#popupContainer").appendChild(popup);
+    popup.style.top = popupNumber * (popup.offsetHeight + 10) + 40 + "px"
+    popupNumber += 1;
+    setTimeout( ()=> {
+        popup.classList.add("hidden");
+        setTimeout(() => {
+            popup.remove();
+            popupNumber -= 1;
+        }, 1000)
+    }, 2000 )
+}

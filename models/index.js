@@ -1,4 +1,4 @@
-const { Schema, model, Types } = require("mongoose")
+const { Schema, model } = require("mongoose")
 
 const userSchema = new Schema({
     email: {
@@ -36,14 +36,15 @@ const chatSchema = new Schema({
     },
 })
 
+// Creating a counter schema
+// These counters will be the ones creating the user "specialId"
 const counterSchema = new Schema({
     for: Schema.Types.String,
     nb: Schema.Types.Number
 })
-
 const Counter = model("Counter", counterSchema)
 
-
+// We create a counter for the users
 Counter.findOne({for: "User"}).then((res)=> {
     if (!res){
         userCounter = new Counter({for: "User", nb:0}) 
@@ -51,7 +52,7 @@ Counter.findOne({for: "User"}).then((res)=> {
     }
 })
 
-
+// We create a counter for the chats as well
 Counter.findOne({for: "Chat"}).then((res)=> {
     if (!res){
         chatCounter = new Counter({for: "Chat", nb:0}) 
@@ -59,7 +60,9 @@ Counter.findOne({for: "Chat"}).then((res)=> {
     }
 })
 
-
+// Setting up the "specialId"
+// Before each save of new members, we increment the counter
+// and create the specialId from that
 userSchema.pre('save', async function(next){
     if(!this.specialId){
         const userCounter = await Counter.findOneAndUpdate({for: "User"}, {$inc: {nb: 1}})
@@ -68,7 +71,9 @@ userSchema.pre('save', async function(next){
     next()
 })
 
-
+// It is possible that Chats don't have names.
+// To fix this problem, we create one like "Chat X"
+// where X is the number of the chat
 chatSchema.pre('save', async function(next){
     if(!this.name){
         const chatCounter = await Counter.findOneAndUpdate({for: "Chat"}, {$inc: {nb: 1}})
@@ -85,5 +90,4 @@ module.exports = {
     "User" : User,
     "Message" : Message,
     "Chat" : Chat,
-    "ObjectId": Types.ObjectId
 }

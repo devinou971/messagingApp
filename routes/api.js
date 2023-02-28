@@ -2,6 +2,10 @@ const express = require("express")
 const {User, Chat, Message} = require("../models")
 const {isUserConnected} = require("../utils")
 
+// We need the redisClient as well as the socket 
+// but they are defined in the "app.js" file.
+// We didn't want to do a "require("../app.js")"
+// so we just export a function that creates the routes
 module.exports = (io, redisClient) => {
 
     const apiRouter = express.Router()
@@ -13,9 +17,11 @@ module.exports = (io, redisClient) => {
         })
     })
 
-    // POST chat to create a chat
-    // Must send the infos of the chat as well as the userId to add the server to the user's list
+    // Creates a new chat
+    // if the chat is private, the user creating the chat is added
     apiRouter.post("/chat/", async function(req, res){
+        // If you try "findById" with an incorrect id
+        // it crashes, so we do this little check
         if(req.body.userid && req.body.userid.length == 24){
             const owner = await User.findById(req.body.userid)
             if (owner !== undefined){
@@ -36,12 +42,12 @@ module.exports = (io, redisClient) => {
     })
 
 
-    // GET all public chats
+    // Returns all the public chats 
     apiRouter.get("/chat/", async function(req, res){
         res.json(await Chat.find({public: true}))
     })
 
-    // GET chat to get chat informations
+    // Returns 1 specific chat 
     apiRouter.get("/chat/:id", async function(req, res){
         const id = req.params.id
         const chat = await Chat.findById(id)
@@ -52,7 +58,7 @@ module.exports = (io, redisClient) => {
         }
     })
 
-    // GET chat stats 
+    // 
     apiRouter.get("/chat/:id/stats", async function(req, res){
         const id = req.params.id;
         const chat = await Chat.findById(id);
@@ -63,7 +69,8 @@ module.exports = (io, redisClient) => {
         }
     })
 
-    // GET chat to users in chat
+    // Returns all the users in a chat
+    // Only works if chat is public
     apiRouter.get("/chat/:id/users", async function(req, res){
         const id = req.params.id
         const chat = await Chat.findById(id)
@@ -79,7 +86,8 @@ module.exports = (io, redisClient) => {
         }
     })
 
-    // GET chat of a user
+    // Returns chats of a user
+    // Including all the public chats
     apiRouter.get("/user/:userid/chats", async function(req, res){
         const id = req.params.userid
         const user = await User.findById(id)
@@ -94,7 +102,8 @@ module.exports = (io, redisClient) => {
         }
     })
 
-    // PUT : invite a user to a chat
+    // Includes a user to a chat
+    // If the user is already in the chat, an error is returned
     apiRouter.put("/user/:userid/chat/:chatid", async function(req, res){
         const user = await User.findById(req.params.userid)
         const chat = await Chat.findById(req.params.chatid)
@@ -112,13 +121,14 @@ module.exports = (io, redisClient) => {
         }
     })
 
-    // ( DELETE chat to delete a chat )
-
-    // POST message
+    // Creates a new message in database
     apiRouter.post("/message/", async function(req, res){
         if(await Chat.exists({_id: req.body.to}) && await User.exists({_id: req.body.from})){
             const message = new Message(req.body)
             await message.save()
+
+            // After saving, we send notification to all 
+            // the users in the chat
             await message.populate({
                 path: "from",
                 select: "pseudo specialId connected"
@@ -133,11 +143,7 @@ module.exports = (io, redisClient) => {
         }
     })
 
-
-    // GET message
-
-
-    // GET all messages
+    // Returns all messages in the database
     apiRouter.get("/message/", async function(req, res){
         const allMessages = await Message.find({})
         for (let message of allMessages){
@@ -150,21 +156,21 @@ module.exports = (io, redisClient) => {
         res.json(allMessages)
     })
 
-// GET messages of chat 
-apiRouter.get("/chat/:chatid/messages", async function(req, res){
-    const chatId = req.params.chatid
-    const allMessages = await Message.find({to: chatId})
-    for (let message of allMessages){
-        message = await message.populate("from")
-        message.from.password = ""
-        message.from.conversations = []
-    }
+    // Returns all messages of 1 chat 
+    apiRouter.get("/chat/:chatid/messages", async function(req, res){
+        const chatId = req.params.chatid
+        const allMessages = await Message.find({to: chatId})
+        for (let message of allMessages){
+            message = await message.populate("from")
+            message.from.password = ""
+            message.from.conversations = []
+        }
+        
+        res.json(allMessages)
     
-    res.json(allMessages)
-    
-})
+    })
 
-    // GET messages of user
+    // Returns all the messages of 1 user
     apiRouter.get("/user/:userid/messages", async function(req, res){
         const userId = req.params.userid
         const allMessages = await Message.find({from: userId})
@@ -177,19 +183,21 @@ apiRouter.get("/chat/:chatid/messages", async function(req, res){
             res.json(allMessages)
         }
     })
-    // ( DELETE message ) 
 
-
-
-    // POST user to create a user
+    // Creates a new user
     apiRouter.post("/user", async function(req, res){
+        // We check if the email and pseudo are there.
         if(!req.body.email || !req.body.pseudo){
             res.json({error: "The new user must have an email and a pseudo"});
         } else {
+
+            // Checking if the email is already used
             const existingUser = await User.findOne({email: req.body.email});
             if(existingUser) {
                 res.json({error: "This email is already in use"})    
             } else {
+
+                // Checking if the email is really an email
                 if( ! /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(req.body.email)){
                     res.json({error: "The mail is in the wrong format"})    
                 } else {
@@ -201,7 +209,7 @@ apiRouter.get("/chat/:chatid/messages", async function(req, res){
         }
     })
 
-    // GET user
+    // Returns 1 user (without password, conversations & email)
     apiRouter.get("/user/:id", async function(req, res){
         const id = req.params.id  
         const user = await User.findOne({_id: id}).select("-password -email")
@@ -212,8 +220,10 @@ apiRouter.get("/chat/:chatid/messages", async function(req, res){
         }
     })
 
-    // GET find user
+    // Returns the user that has the passed pseudo
     apiRouter.get("/find/user/:pseudo", async function(req, res){
+        // the "pseudo" is made of a psuedo and a special id (_1)
+        // for example : Test_32
         const array = req.params.pseudo.split("_")
         const specialId = "_" + array.pop()
         const pseudo = array.join("_")
@@ -225,13 +235,15 @@ apiRouter.get("/chat/:chatid/messages", async function(req, res){
         }
     })
 
-    // GET all users
+    // Returns the list of all users
     apiRouter.get("/user/", async function(req, res){
         const users = await User.find({}, { pseudo: 1, specialId: 1, connected: 1})
         res.json(users)
     })
 
-    // POST connect the user 
+    // Verifies the email and password of a user 
+    // Returns True is everything checks out 
+    //          False if not
     apiRouter.post("/user/connect", async function(req, res){
         const email = req.body.email
         const password = req.body.password
@@ -247,6 +259,5 @@ apiRouter.get("/chat/:chatid/messages", async function(req, res){
         }
     })
 
-    // ( DELETE USER )
     return apiRouter;
 }

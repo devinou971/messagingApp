@@ -9,13 +9,19 @@ const REDIS_HOST = process.env.REDIS_HOST
 const DB_NAME = process.env.DB_NAME
 const REPLICASET_NAME = process.env.REPLICASET_NAME
 
-module.exports = {initiate: async () => {
-    mongoose.set('strictQuery', false)
+// Instead of exporting each connector, we decided to return a function
+// This is very useful because we don't want the services to 
+// start before connection to the databases is 100% Ok
 
+module.exports = {initiate: async () => {
+
+    // Connection to Mongo Replicaset
+    mongoose.set('strictQuery', false)
     console.log(`mongodb://${REPLICASET_HOSTS}/${DB_NAME}?replicaSet=${REPLICASET_NAME}`)
     await mongoose.connect(`mongodb://${REPLICASET_HOSTS}/${DB_NAME}?replicaSet=${REPLICASET_NAME}`)
     console.log("Connection to Mongodb success");
 
+    // Connection to Redis Database
     const redisClient = createClient({
         url: `redis://${REDIS_HOST}:${REDIS_PORT}`
     });
