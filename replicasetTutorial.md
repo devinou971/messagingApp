@@ -13,6 +13,12 @@ mongod --port 30002 --dbpath <PATH TO FOLDER>/R0S2 --replSet <REPLICASET NAME>
 mongod --port 30003 --dbpath <PATH TO FOLDER>/R0S3 --replSet <REPLICASET NAME>
 ```
 
+You will also need to create an arbiter : 
+```
+mkdir arb
+mongod --port 30000 --dbpath <PATH TO FOLDER>/arb --replSet <REPLICASET NAME>
+```
+
 You can then connect into the first node with mongosh: 
 ```
 mongosh --port 30001

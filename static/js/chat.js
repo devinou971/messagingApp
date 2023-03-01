@@ -95,11 +95,19 @@ window.onload = async() => {
     
     // Get all existing messages and display them
     const messageContainer = document.querySelector("#messageContainer")
+    const messageSentTemplate = document.querySelector("template#messageSentTemplate")
+    const messageReceivedTemplate = document.querySelector("template#messageReceivedTemplate")
     messagesPromise.then((messages)=>{
         console.log(messages)   
         if(!messages.data.error){
             for(let message of messages.data){
-                const messageDiv = createMessageElement(message, user)
+                
+                let messageDiv = null
+                if(message.from._id == user._id){
+                    messageDiv = createMessageElement(message, messageSentTemplate)
+                } else {
+                    messageDiv = createMessageElement(message, messageReceivedTemplate)
+                }
                 messageContainer.appendChild(messageDiv)
             }
         } 
@@ -119,13 +127,15 @@ window.onload = async() => {
         }
     })
 
-    // When we receive a message that is not from the current
-    // chat, this variable will be useful
-
     socket.on("new message", async function(response){
         const message = response
         if(message.to._id == chat._id){
-            const newMessage = createMessageElement(message, user)
+            let newMessage = null
+            if(message.from._id == user._id){
+                newMessage = createMessageElement(message, messageSentTemplate)
+            } else {
+                newMessage = createMessageElement(message, messageReceivedTemplate)
+            }
             messageContainer.appendChild(newMessage)
             messageContainer.scrollTop = messageContainer.scrollHeight 
         } else {
