@@ -4,42 +4,60 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page de connexion</title>
+    <title>Home page</title>
     <!-- Inclusion de Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cerulean/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="/static/css/chatStyle.css" rel="stylesheet">
 
 <body>
+    <!-- Container for popups -->
+    <div id="popupContainer">
+    </div>
     <div class="container">
         <h1 class="text-center my-5">Main page</h1>
+        <a type="button" class="btn btn-info" href="/create/chat"> Create a chat</a>
 
-        <button type="button" class="btn btn-info" href="/create/chat"> Create a chat</button>
-
-
-
+        <!-- List for all public chats -->
         <h2>Public chat</h2>
-        <div id="tab_chat_general">
+        <div id="tab_chat_general"></div>
 
-        </div>
+        <!-- List for all private chats -->
         <h2>Private chat</h2>
-        <div id="tab_chat_private">
-
-        </div>
+        <div id="tab_chat_private"></div>
 
         <h2>General stats </h2>
         <div id="general_stats">
-
+            <h3>Top 5 most active users</h3>
+            <div>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nom</th>
+                            <th scope="col">Nombre de messages</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% for(const user of mostActiveUsers){ %>
+                        <tr class="table-primary">
+                            <td>
+                                <a href="/user/<%- user.pseudo %>"><%- user.pseudo %></a>
+                            </td>
+                            <td>
+                                <%= user.count %>
+                            </td>
+                        </tr>
+                    <% }%>
+                </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </body>
-
-</html>
-
-
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
-
+<script src="/static/js/messageUtils.js"></script>
 <script>
     // Create socket connection for the user
     const socketHost = "<%= socketHost %>:<%= listenPort %>";
@@ -54,14 +72,8 @@
         .then(function (response) {
             data = response["data"]
 
-
-
-
             let element_html = document.querySelector("#tab_chat_general")
-            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombres de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
-
-
-
+            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombre de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
 
             for (const iterator of data) {
                 if (iterator["public"] == true) {
@@ -96,11 +108,7 @@
                                 element_html.innerHTML = html_tab
 
                             }
-
-
                         })
-
-
                 }
             }
             html_tab += "</tbody>"
@@ -109,14 +117,8 @@
 
         })
         .catch(function (error) {
-            // handle error
             console.log(error["error"]);
         })
-    /*
-  
-    
-  */
-
 
     console.log(id_user)
 
@@ -125,26 +127,18 @@
             let data = response["data"]
             console.log(data)
             let element_html = document.querySelector("general_stats")
-            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombres de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
+            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombre de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
             let len_data = data.length
             let tab_res = []
 
-
             for (const iterator of data) {
-
                 axios.get("/api/user/" + iterator["_id"] + "/messages")
                     .then(function (response) {
                         let data_2 = response["data"]
                         if (data_2["error"] == undefined) {
                             tab_res.push(data_2.length)
                         }
-
-
-
                     })
-
-
-
             }
             console.log(tab_res.length)
             console.log(len_data)
@@ -163,18 +157,12 @@
             console.log(error["error"]);
         })
 
-
-
-
     axios.get("/api/user/" + id_user + "/chats")
         .then(function (response) {
             data = response["data"]
             console.log(data)
             let element_html = document.querySelector("#tab_chat_private")
-            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombres de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
-
-
-
+            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombre de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
 
             for (const iterator of data) {
                 if (iterator["public"] == false) {
@@ -207,23 +195,20 @@
                                 html_tab += "<td>" + last_mess_time + "</td>"
                                 html_tab += "</tr>"
                                 element_html.innerHTML = html_tab
-
                             }
-
-
-
                         })
-
-
                 }
             }
             html_tab += "</tbody>"
-
             element_html.innerHTML += html_tab
-
         })
         .catch(function (error) {
             // handle error
             console.log(error["error"]);
         })
+    
+    socket.on("new message", async function(response){
+        createPopup(response.to.name)
+    })
 </script>
+</html>

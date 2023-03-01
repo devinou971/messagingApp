@@ -21,7 +21,18 @@ module.exports = (redisClient) => {
     
     // Chat Selection Page
     viewRouter.get("/main", async function(req, res){
-        res.render("main", {socketHost : process.env.SOCKET_HOST, listenPort: process.env.LISTEN_PORT})
+        const mostActiveUsers = await Message.aggregate([
+            {$match: {}},
+            {$group: {_id: "$from", count: {$sum: 1}}},
+            {$sort: {count: -1}},
+            {$limit: 5}
+        ]);
+        for(const user of mostActiveUsers){
+            const u = await User.findById(user._id);
+            user.pseudo = u.pseudo + u.specialId;
+            user.profilePicture = u.profilePicture;
+        }
+        res.render("main", {socketHost : process.env.SOCKET_HOST, listenPort: process.env.LISTEN_PORT, mostActiveUsers: mostActiveUsers})
     })
     
     // Chat Page
