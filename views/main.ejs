@@ -97,13 +97,16 @@
                             } else {
                                 numb_mess = Object.keys(data_2).length
                                 console.log(data_2[numb_mess - 1])
-                                last_mess_time = data_2[numb_mess - 1]["timestamp"]
                                 last_mess_user = data_2[numb_mess - 1]["from"]["pseudo"] + "" + data_2[numb_mess - 1]["from"]["specialId"]
+                                let last_mess_time = data_2[numb_mess - 1]["timestamp"]
+                                let last_mess_time2=last_mess_time.split("T")
+                                console.log(last_mess_time2)
+                                let last_mess_time3=last_mess_time2[1].split(".")
                                 html_tab += "<tr class='table-primary'>"
                                 html_tab += "<th scope='row'><a href='/chat/" + iterator["_id"] + "'>" + iterator["name"] + "</a></th>"
                                 html_tab += "<td>" + numb_mess + "</td>"
                                 html_tab += "<td>" + last_mess_user + "</td>"
-                                html_tab += "<td>" + last_mess_time + "</td>"
+                                html_tab += "<td>" + last_mess_time2[0] +" "+last_mess_time3[0] +"</td>"
                                 html_tab += "</tr>"
                                 element_html.innerHTML = html_tab
 
@@ -186,13 +189,15 @@
                             } else {
                                 numb_mess = Object.keys(data_2).length
                                 console.log(data_2[numb_mess - 1])
-                                last_mess_time = data_2[numb_mess - 1]["timestamp"]
-                                last_mess_user = data_2[numb_mess - 1]["from"]["pseudo"] + "" + data_2[numb_mess - 1]["from"]["specialId"]
+                                let last_mess_time = data_2[numb_mess - 1]["timestamp"]
+                                let last_mess_time2=last_mess_time.split("T")
+                                let last_mess_time3=last_mess_time2[1].split(".")
+                                let last_mess_user = data_2[numb_mess - 1]["from"]["pseudo"] + "" + data_2[numb_mess - 1]["from"]["specialId"]
                                 html_tab += "<tr class='table-primary'>"
                                 html_tab += "<th scope='row'><a href='/chat/" + iterator["_id"] + "'>" + iterator["name"] + "</a></th>"
                                 html_tab += "<td>" + numb_mess + "</td>"
-                                html_tab += "<td>" + last_mess_user + "</td>"
-                                html_tab += "<td>" + last_mess_time + "</td>"
+                                html_tab += "<td>" + last_mess_user +"</td>"
+                                html_tab += "<td>" + last_mess_time2[0] +" "+last_mess_time3[0] +"</td>"
                                 html_tab += "</tr>"
                                 element_html.innerHTML = html_tab
                             }
