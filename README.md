@@ -13,6 +13,7 @@ There is also a part on creating a MongoDB replicaset if don't know how.
 - [How to use](#how-to-use)
 - [Quick MongoDB Replicaset tuto](./replicasetTutorial.md)
 - [Bugs that need to be fixed](#bugs-that-need-to-be-fixed)
+- [Division of work](#Divison-of-work)
 
 ---
 ## Dependencies
@@ -86,4 +87,5 @@ npm run dev
 ## Divison of work
 
 Damien = 60%
+
 Etienne = 40%
