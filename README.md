@@ -73,7 +73,7 @@ You need to launch the replicaset like this :
 mongod --port 30001 --dbpath <PATH TO FOLDER>/R0S1 --replSet rs0
 mongod --port 30002 --dbpath <PATH TO FOLDER>/R0S2 --replSet rs0
 mongod --port 30003 --dbpath <PATH TO FOLDER>/R0S3 --replSet rs0
-mongod --port 30003 --dbpath <PATH TO FOLDER>/ABR --replSet rs0
+mongod --port 30000 --dbpath <PATH TO FOLDER>/ABR --replSet rs0
 
 ```
 Then all you have to do is : 
