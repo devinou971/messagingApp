@@ -131,7 +131,7 @@ module.exports = (io, redisClient) => {
             // the users in the chat
             await message.populate({
                 path: "from",
-                select: "pseudo specialId connected"
+                select: "pseudo specialId connected profilePicture"
             })
             await message.populate("to")
 
