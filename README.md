@@ -61,10 +61,20 @@ REPLICASET_NAME = "rs0"
 DB_NAME = "chatappdb"
 ```
 
+
+
 ---
 ## How to use
 
 To launch the program, you'll need to have your redis database and mongodb replicaset up and running. \
+You need to launch the replicaset like this :
+```
+mongod --port 30001 --dbpath <PATH TO FOLDER>/R0S1 --replSet rs0
+mongod --port 30002 --dbpath <PATH TO FOLDER>/R0S2 --replSet rs0
+mongod --port 30003 --dbpath <PATH TO FOLDER>/R0S3 --replSet rs0
+mongod --port 30003 --dbpath <PATH TO FOLDER>/ABR --replSet rs0
+
+```
 Then all you have to do is : 
 ```
 npm run dev
