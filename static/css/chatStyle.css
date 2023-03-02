@@ -10,7 +10,7 @@
 }
 
 .profile-picture{
-    width: 45px; height: 100%; border: 50%;
+    width: 45px; height: 45px; border-radius: 50%;
 }
 
 .connected{

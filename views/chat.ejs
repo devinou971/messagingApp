@@ -85,7 +85,7 @@
                         <div class="d-flex flex-row justify-content-start mb-4"
                             style="margin-left: 20px; margin-right: 20px;">
                             <img class="profile-picture"
-                                src="<%= user.profilePicture ? user.profilePicture : '/static/images/default_pp.png' %>">
+                                src="<%= user.profilePicture ? "/static/profilePictures/" + user.profilePicture : '/static/images/default_pp.png' %>">
                             <div class="small text-muted user-name">
                                 <a href="/user/<%- user.pseudo %>"><%- user.pseudo %></a>
                             </div>

@@ -27,7 +27,7 @@ function createMessageElement(message, messageTemplate){
 
     // Adding the profile picture if it exists
     if(message.from.profilePicture){
-        messageContainer.querySelector(".profile-picture").src = "/static/images/" + message.from.profilePicture
+        messageContainer.querySelector(".profile-picture").src = "/static/profilePictures/" + message.from.profilePicture
     }
 
     return messageContainer

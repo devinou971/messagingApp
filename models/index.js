@@ -8,6 +8,7 @@ const userSchema = new Schema({
     },
     pseudo: Schema.Types.String,
     password: Schema.Types.String,
+    profilePicture: Schema.Types.String,
     specialId: Schema.Types.String,
     connected: {
         type: Schema.Types.Boolean,

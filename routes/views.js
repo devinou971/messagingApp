@@ -97,7 +97,7 @@ module.exports = (redisClient) => {
                     const millis = Math.abs(disconnection - connection)
                     const seconds =  Math.floor(millis / 1000)
                     const mins = Math.floor(seconds / 60)
-                    sessionDurations.push("" + mins)
+                    sessionDurations.push(mins)
                 }
             }
     

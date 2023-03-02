@@ -32,7 +32,7 @@
                 <div class="col-lg-4">
                     <div class="card mb-4">
                         <div class="card-body text-center">
-                            <img src="/static/images/default_pp.png"
+                            <img src="<%= user.profilePicture ? "/static/profilePictures/" + user.profilePicture : '/static/images/default_pp.png' %>"
                                 alt="profile picture" class="rounded-circle img-fluid" style="width: 150px; height: 150px; border-radius: 15px;">
                             <h5 class="my-3"> <%= user.pseudo + user.specialId %> </h5>
                             <p class="text-muted mb-4 <%= user.connected ? "connected" : "disconnected"%>"><%= user.connected ? "Currently Online" : "Currently offline"%></p>
@@ -75,6 +75,7 @@
                                     <p class="mb-0">La session la plus longue</p>
                                 </div>
                                 <div class="col-sm-9">
+                                    <%= infos.sessions %>
                                     <p class="text-muted mb-0"><%= infos.sessions.length == 0 ? 0 : Math.max.apply(Math, infos.sessions) %> mins</p>
                                 </div>
                             </div>
