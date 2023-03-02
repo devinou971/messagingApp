@@ -86,6 +86,6 @@ npm run dev
 
 ## Divison of work
 
-Damien = 60%
+Damien = 50%
 
-Etienne = 40%
+Etienne = 50%
