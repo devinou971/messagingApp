@@ -83,4 +83,7 @@ npm run dev
 ---
 ## Bugs that need to be fixed
 
+## Divison of work
 
+Damien = 60%
+Etienne = 40%
