@@ -73,7 +73,7 @@
             data = response["data"]
 
             let element_html = document.querySelector("#tab_chat_general")
-            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombre de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
+            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Number of  messages</th><th scope='col'>Last user sent messages</th><th scope='col'>Time last messages sent</th></tr></thead><tbody>"
 
             for (const iterator of data) {
                 if (iterator["public"] == true) {
@@ -130,7 +130,7 @@
             let data = response["data"]
             console.log(data)
             let element_html = document.querySelector("general_stats")
-            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombre de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
+            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Number of  messages</th><th scope='col'>Last user sent messages</th><th scope='col'>Time last messages sent</th></tr></thead><tbody>"
             let len_data = data.length
             let tab_res = []
 
@@ -165,7 +165,7 @@
             data = response["data"]
             console.log(data)
             let element_html = document.querySelector("#tab_chat_private")
-            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Nombre de messages</th><th scope='col'>Last user send messages</th><th scope='col'>Time last messages</th></tr></thead><tbody>"
+            let html_tab = "<table class='table table-hover'><thead><tr><th scope='col'>Nom</th><th scope='col'>Number of  messages</th><th scope='col'>Last user sent messages</th><th scope='col'>Time last messages sent</th></tr></thead><tbody>"
 
             for (const iterator of data) {
                 if (iterator["public"] == false) {
