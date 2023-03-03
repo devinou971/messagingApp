@@ -97,10 +97,11 @@ module.exports = (redisClient) => {
                     const millis = Math.abs(disconnection - connection)
                     const seconds =  Math.floor(millis / 1000)
                     const mins = Math.floor(seconds / 60)
-                    sessionDurations.push(mins)
+                    if(!Number.isNaN(mins))
+                        sessionDurations.push(mins)
                 }
             }
-    
+            console.log(sessionDurations)
             const lastConnection = Date.parse(allConnections[allConnections.length-1])
             const nbMessages = await Message.countDocuments({from: user._id})
             const infos = {

@@ -18,6 +18,7 @@
     <div class="container">
         <h1 class="text-center my-5">Main page</h1>
         <a type="button" class="btn btn-info" href="/create/chat"> Create a chat</a>
+        <a id="userPageLink" type="button" class="btn btn-info" href="#">Profile Page</a>
 
         <!-- List for all public chats -->
         <h2>Public chat</h2>
@@ -65,6 +66,8 @@
     if(!currentUser){
         window.location.replace("/connexion")
     }
+    document.querySelector("#userPageLink").href = "/user/" + currentUser.pseudo + currentUser.specialId
+    document.querySelector("#userPageLink").textContent = currentUser.pseudo + currentUser.specialId
     const socket = io(`${socketHost}?userid=${currentUser._id+""}`)
 
     let id_user = currentUser["_id"]
