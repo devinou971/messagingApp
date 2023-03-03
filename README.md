@@ -86,6 +86,39 @@ npm run dev
 
 ## Divison of work
 
-Damien = 50%
+Damien = 50% ( Setting up databases + api work + backend socket )
 
-Etienne = 50%
+Etienne = 50% (Backend road work + Front end work )
+
+## Architecture of the application
+
+This is how our application work : 
+![image](https://user-images.githubusercontent.com/90306508/222705307-a8592fff-ceaa-47b2-ba30-c5dcca3dcd88.png)
+
+And this is how our database work :
+
+![image](https://user-images.githubusercontent.com/90306508/222705507-5d87eafb-f6e5-4990-9450-872ba2b66a81.png)
+![image](https://user-images.githubusercontent.com/90306508/222705551-09dbece8-4d9e-4cc0-ae54-ac9bc3711c73.png)
+
+
+## Implemented features
+
+We have multiple implemented features:
+
+- Instant messaging
+- User creation
+- Creation of public and private rooms
+- Invitation of user in a chat
+- Wysiwyg integrated in the chat
+- Change of chat colour
+- Viewing statistics
+
+## Features to be added in the future
+
+We have some ideas on what to add later :
+
+
+- Custom profile images
+- User deletion
+- Deleting chats
+- Sending files
