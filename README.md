@@ -13,7 +13,10 @@ There is also a part on creating a MongoDB replicaset if don't know how.
 - [How to use](#how-to-use)
 - [Quick MongoDB Replicaset tuto](./replicasetTutorial.md)
 - [Bugs that need to be fixed](#bugs-that-need-to-be-fixed)
-- [Division of work](#Divison-of-work)
+- [Division of work](#divison-of-work)
+- [Architecture of the application](#architecture-of-the-application)
+- [Implemented features](#implemented-features)
+- [Features to be added in the future](#features-to-be-added-in-the-future)
 
 ---
 ## Dependencies
@@ -93,6 +96,7 @@ Etienne = 50% (Backend road work + Front end work )
 ## Architecture of the application
 
 This is how our application work : 
+
 ![image](https://user-images.githubusercontent.com/90306508/222705307-a8592fff-ceaa-47b2-ba30-c5dcca3dcd88.png)
 
 And this is how our database work :
