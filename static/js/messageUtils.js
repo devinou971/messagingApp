@@ -49,7 +49,7 @@ function createUserCard(user){
 
     // Adding the profile picture if it exists
     if(user.profilePicture){
-        userContainer.querySelector(".profile-picture").src = "/static/images/" + user.profilePicture
+        userContainer.querySelector(".profile-picture").src = "/static/profilePictures/" + user.profilePicture
     }
 
     // Putting the card in red if the user is not connected
